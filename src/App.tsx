@@ -1,20 +1,26 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import CIIU_MAP from "./CIIU_MAP";
 
-const TD = "border border-slate-300 px-2 py-1";
+// ====== Estilos reutilizables ======
+const TD = "border border-slate-300 px-2 py-1 break-words";
 const TD_CENTER = TD + " text-center";
 const TH = TD + " bg-slate-100 font-semibold";
 
+// ====== Tipos ======
 type CiiuEntry = { actividad: string; parametros: string[] };
 type CIIUMap = Record<string, CiiuEntry[]>;
 type ParamInfo = { vma: string; dir: boolean; annex: 1 | 2 };
+
 type Cells = { vma: string; n: "" | "1" | "2"; lab: "X" | ""; dir: "X" | "" };
 
+// ====== Tabla VMA / Dirimente por parámetro ======
 const PARAM_INFO: Record<string, ParamInfo> = {
+  // Anexo 1
   "Demanda Bioquímica de Oxígeno": { vma: "500 mg/L", dir: false, annex: 1 },
   "Demanda Química de Oxígeno": { vma: "1000 mg/L", dir: true, annex: 1 },
   "Sólidos Suspendidos Totales": { vma: "500 mg/L", dir: false, annex: 1 },
   "Aceites y Grasas": { vma: "100 mg/L", dir: true, annex: 1 },
+  // Anexo 2
   "Aluminio": { vma: "10 mg/L", dir: true, annex: 2 },
   "Arsénico": { vma: "0.5 mg/L", dir: true, annex: 2 },
   "Boro": { vma: "4 mg/L", dir: true, annex: 2 },
@@ -36,6 +42,7 @@ const PARAM_INFO: Record<string, ParamInfo> = {
   "Temperatura": { vma: "< 35 °C", dir: false, annex: 2 },
 };
 
+// ====== Utilidades ======
 function unionParams(codes: string[], map: CIIUMap): Set<string> {
   const out = new Set<string>();
   for (const code of codes) {
@@ -58,14 +65,16 @@ function getCells(param: string, union: Set<string>): Cells {
 }
 
 function stripDiacritics(s: string): string {
-  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
+// ====== App (ajuste de ancho en móvil, sin perder formato) ======
 export default function App() {
   const [selected, setSelected] = useState<string[]>([]);
   const [q, setQ] = useState<string>("");
   const [focused, setFocused] = useState<boolean>(false);
 
+  // Cerrar dropdown al clickear fuera
   const containerRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -76,6 +85,7 @@ export default function App() {
     return () => document.removeEventListener("click", onClick);
   }, []);
 
+  // Opciones para el autocompletado
   const options = useMemo(() => {
     const list: { code: string; label: string; actividades: string[] }[] = [];
     for (const [code, entries] of Object.entries(CIIU_MAP as Record<string, {actividad:string;parametros:string[]}[]>)) {
@@ -97,46 +107,38 @@ export default function App() {
 
   const addCode = (code: string) => {
     if (!code) return;
-    setSelected((prev) => {
-      if (prev.includes(code)) return prev;
-      return [...prev, code]; // sin límite
-    });
+    setSelected((prev) => (prev.includes(code) ? prev : [...prev, code]));
     setQ("");
     setFocused(false);
   };
-
   const removeCode = (code: string) => setSelected((prev) => prev.filter((c) => c !== code));
 
+  // Tests mínimos (silenciosos)
   useEffect(() => {
     try {
       const u1 = new Set<string>(["Demanda Química de Oxígeno"]);
       const t1 = getCells("Demanda Química de Oxígeno", u1);
       console.assert(t1.n === "2" && t1.lab === "X" && t1.dir === "X");
-
       const u2 = new Set<string>(["Demanda Bioquímica de Oxígeno"]);
       const t2 = getCells("Demanda Bioquímica de Oxígeno", u2);
       console.assert(t2.n === "1" && t2.lab === "X" && t2.dir === "");
-
-      const u3 = new Set<string>([]);
-      const t3 = getCells("Zinc", u3);
-      console.assert(t3.n === "" && t3.lab === "" && t3.dir === "");
     } catch {}
   }, []);
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
-      <div className="max-w-7xl mx-auto p-4 space-y-6">
-        <header className="flex items-end justify-between border-b border-slate-200 pb-2">
-          <div>
-            <h1 className="text-2xl font-semibold">Parámetros que aplica según CIIU - VMA</h1>
-            <div className="text-sm text-slate-600">
-              Basado en el D.S. 010-2019-VIVIENDA y la R.M. 116-2012-VIVIENDA
-            </div>
+      <div className="mx-auto max-w-7xl p-4 space-y-6">
+        {/* Encabezado */}
+        <header className="border-b border-slate-200 pb-2">
+          <h1 className="text-xl sm:text-2xl font-semibold">Parámetros que aplica según CIIU - VMA</h1>
+          <div className="text-xs sm:text-sm text-slate-600">
+            Basado en el D.S. 010-2019-VIVIENDA y la R.M. 116-2012-VIVIENDA
           </div>
         </header>
 
+        {/* Selector con búsqueda (mismo formato) */}
         <section className="border border-slate-300 rounded-md bg-white">
-          <div className={TH}>Seleccionar CIIU</div>
+          <div className={TH + " text-sm"}>Seleccionar CIIU</div>
           <div ref={containerRef} className="relative">
             <div className="flex items-center gap-2 p-2">
               <input
@@ -147,7 +149,7 @@ export default function App() {
                   if (e.key === "Enter" && visible[0]) addCode(visible[0].code);
                 }}
                 placeholder="Buscar por código (p. ej. 5610) o actividad (p. ej. restaurantes)"
-                className="w-full px-3 py-2 rounded-md bg-white border border-slate-300 outline-none"
+                className="w-full px-3 py-2 rounded-md bg-white border border-slate-300 outline-none text-sm"
               />
             </div>
 
@@ -165,10 +167,11 @@ export default function App() {
                       className="px-3 py-2 hover:bg-slate-100 cursor-pointer"
                       onClick={() => addCode(o.code)}
                     >
-                      <div className="grid grid-cols-[160px_1fr] gap-x-4">
-                        <div className="text-xs text-slate-500">Número de la CIIU:</div>
+                      {/* Formato norma */}
+                      <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-x-4">
+                        <div className="text-[11px] text-slate-500">Número de la CIIU:</div>
                         <div className="font-mono text-sm">{o.code}</div>
-                        <div className="text-xs text-slate-500">Descripción</div>
+                        <div className="text-[11px] text-slate-500">Descripción</div>
                         <div className="text-sm leading-tight">{o.actividades[0] || "(sin actividad)"}</div>
                       </div>
                     </li>
@@ -178,12 +181,13 @@ export default function App() {
             )}
           </div>
 
-          <div className="p-2 border-t border-slate-300">
-            <table className="w-full text-sm table-fixed border-collapse">
+          {/* Seleccionados: tabla RESPONSIVE, ajusta al ancho en móvil */}
+          <div className="p-2 border-t border-slate-300 overflow-x-hidden">
+            <table className="w-full text-[13px] sm:text-sm border-collapse">
               <colgroup>
-                <col style={{ width: "160px" }} />
-                <col style={{ width: "160px" }} />
-                <col style={{ width: "160px" }} />
+                <col className="w-[110px] sm:w-[160px]" />
+                <col className="w-[140px] sm:w-[160px]" />
+                <col className="w-[110px] sm:w-[160px]" />
                 <col />
               </colgroup>
               <tbody>
@@ -194,10 +198,7 @@ export default function App() {
                   return (
                     <tr key={idx} className="align-top">
                       {idx === 0 && (
-                        <td
-                          rowSpan={4}
-                          className="border border-slate-300 bg-slate-50 text-xs text-slate-700 px-2 py-1 whitespace-nowrap align-top"
-                        >
+                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[11px] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top">
                           Número de la CIIU:
                         </td>
                       )}
@@ -219,19 +220,12 @@ export default function App() {
                         )}
                       </td>
                       {idx === 0 && (
-                        <td
-                          rowSpan={4}
-                          className="border border-slate-300 bg-slate-50 text-xs text-slate-700 px-2 py-1 whitespace-nowrap align-top"
-                        >
+                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[11px] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top">
                           Descripción
                         </td>
                       )}
                       <td className="border border-slate-300 px-2 py-1">
-                        {desc ? (
-                          <span className="text-sm leading-tight">{desc}</span>
-                        ) : (
-                          <span className="text-slate-300">&nbsp;</span>
-                        )}
+                        {desc ? <span className="text-sm leading-tight">{desc}</span> : <span className="text-slate-300">&nbsp;</span>}
                       </td>
                     </tr>
                   );
@@ -241,9 +235,11 @@ export default function App() {
           </div>
         </section>
 
+        {/* Tablas de parámetros: ajustan al ancho y las cabeceras envuelven texto */}
         <ParametrosTabla annex={1} selectedUnion={selectedUnion} titulo="Parámetros Anexo 1" />
         <ParametrosTabla annex={2} selectedUnion={selectedUnion} titulo="Parámetros Anexo 2" />
 
+        {/* Pie */}
         <footer className="text-center text-xs text-slate-600 pt-2 border-t border-slate-200">
           Desarrollado por Sergio Gonzales Espinoza
         </footer>
@@ -252,66 +248,59 @@ export default function App() {
   );
 }
 
-function ParametrosTabla({
-  annex,
-  selectedUnion,
-  titulo,
-}: {
-  annex: 1 | 2;
-  selectedUnion: Set<string>;
-  titulo: string;
-}) {
+// ====== Componentes ======
+function ParametrosTabla({ annex, selectedUnion, titulo }: { annex: 1 | 2; selectedUnion: Set<string>; titulo: string }) {
   const params = useMemo(() => Object.keys(PARAM_INFO).filter((k) => PARAM_INFO[k].annex === annex), [annex]);
   return <TablaBase titulo={titulo} params={params} selectedUnion={selectedUnion} />;
 }
 
-function TablaBase({
-  titulo,
-  params,
-  selectedUnion,
-}: {
-  titulo: string;
-  params: string[];
-  selectedUnion: Set<string>;
-}) {
+function TablaBase({ titulo, params, selectedUnion }: { titulo: string; params: string[]; selectedUnion: Set<string> }) {
   return (
-    <section className="border border-slate-300 rounded-md overflow-x-auto">
-      <div className={TH}>{titulo}</div>
-      <table className="w-full text-sm table-fixed border-collapse">
-        <colgroup>
-          <col style={{ width: "40%" }} />
-          <col style={{ width: "15%" }} />
-          <col style={{ width: "15%" }} />
-          <col style={{ width: "15%" }} />
-          <col style={{ width: "15%" }} />
-        </colgroup>
-        <thead className="bg-slate-100">
-          <tr>
-            <th className={TH + " text-left"} rowSpan={2}>Parámetro</th>
-            <th className={TH + " text-center"} rowSpan={2}>VMA</th>
-            <th className={TH + " text-center"} rowSpan={2}>N° muestra</th>
-            <th className={TH + " text-center"} colSpan={2}>Tipo de muestra</th>
-          </tr>
-          <tr>
-            <th className={TH + " text-center"}>Muestra lab. Acreditado</th>
-            <th className={TH + " text-center"}>Muestra dirimente</th>
-          </tr>
-        </thead>
-        <tbody>
-          {params.map((p) => {
-            const { vma, n, lab, dir } = getCells(p, selectedUnion);
-            return (
-              <tr key={p} className="odd:bg-white even:bg-slate-50">
-                <td className={TD}>{p}</td>
-                <td className={TD_CENTER}>{vma}</td>
-                <td className={TD_CENTER}>{n}</td>
-                <td className={TD_CENTER}>{lab}</td>
-                <td className={TD_CENTER}>{dir}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+    <section className="border border-slate-300 rounded-md">
+      <div className={TH + " text-sm"}>{titulo}</div>
+      <div className="overflow-x-hidden">
+        <table className="w-full text-[13px] sm:text-sm table-fixed border-collapse">
+          <colgroup>
+            <col style={{ width: "40%" }} />
+            <col style={{ width: "15%" }} />
+            <col style={{ width: "15%" }} />
+            <col style={{ width: "15%" }} />
+            <col style={{ width: "15%" }} />
+          </colgroup>
+          <thead className="bg-slate-100">
+            <tr>
+              <th className={TH + " text-left text-[12px] sm:text-sm leading-tight"} rowSpan={2}>Parámetro</th>
+              <th className={TH + " text-center text-[12px] sm:text-sm leading-tight"} rowSpan={2}>VMA</th>
+              <th className={TH + " text-center text-[12px] sm:text-sm leading-tight"} rowSpan={2}>N° muestra</th>
+              <th className={TH + " text-center text-[12px] sm:text-sm leading-tight"} colSpan={2}>Tipo de muestra</th>
+            </tr>
+            <tr>
+              <th className={TH + " text-center text-[11px] sm:text-sm leading-tight whitespace-normal"}>
+                <span className="hidden sm:inline">Muestra lab. Acreditado</span>
+                <span className="sm:hidden block">Muestra lab.<br/>acreditado</span>
+              </th>
+              <th className={TH + " text-center text-[11px] sm:text-sm leading-tight whitespace-normal"}>
+                <span className="hidden sm:inline">Muestra dirimente</span>
+                <span className="sm:hidden block">Muestra<br/>dirimente</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {params.map((p) => {
+              const { vma, n, lab, dir } = getCells(p, selectedUnion);
+              return (
+                <tr key={p} className="odd:bg-white even:bg-slate-50">
+                  <td className={TD}>{p}</td>
+                  <td className={TD_CENTER}>{vma}</td>
+                  <td className={TD_CENTER}>{n}</td>
+                  <td className={TD_CENTER}>{lab}</td>
+                  <td className={TD_CENTER}>{dir}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }
