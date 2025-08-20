@@ -4,7 +4,10 @@ import CIIU_MAP from "./CIIU_MAP";
 // ====== Estilos reutilizables ======
 const TD = "border border-slate-300 px-2 py-1 break-words [overflow-wrap:anywhere] [hyphens:auto]";
 const TD_CENTER = TD + " text-center";
-const TH = TD + " bg-slate-100 font-semibold";
+$1
+// Labels reutilizables (evita duplicar texto)
+const LABEL_NUM = "Número de la CIIU:";
+const LABEL_DESC = "Descripción";
 
 // ====== Tipos ======
 type CiiuEntry = { actividad: string; parametros: string[] };
@@ -169,9 +172,9 @@ export default function App() {
                     >
                       {/* Formato norma */}
                       <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-x-4">
-                        <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Número de la CIIU:</div>
+                        <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">{LABEL_NUM}</div>
                         <div className="font-mono text-[clamp(12px,2.8vw,14px)] sm:text-sm">{o.code}</div>
-                        <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Descripción:</div>
+                        <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">{LABEL_DESC}</div>
                         <div className="text-[clamp(12px,2.8vw,14px)] sm:text-sm leading-tight [overflow-wrap:anywhere] [hyphens:auto]">
                           {o.actividades[0] || "(sin actividad)"}
                         </div>
@@ -224,7 +227,7 @@ export default function App() {
                       </td>
                       {idx === 0 && (
                         <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top">
-                          Descripción:
+                          Descripción
                         </td>
                       )}
                       <td className="border border-slate-300 px-2 py-1">
@@ -253,12 +256,13 @@ export default function App() {
             href="https://www.linkedin.com/in/sergioage"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-[#0A66C2] hover:text-[#0a5ab0]"
+            className="inline-flex items-center gap-2 text-xs"
+            aria-label="LinkedIn de Sergio Gonzales Espinoza"
+            title="LinkedIn: sergioage"
           >
-            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="12" height="12" className="fill-current">
-              <path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.05c.53-1 1.83-2.2 3.77-2.2 4.03 0 4.77 2.65 4.77 6.1V24h-4v-7.9c0-1.88-.03-4.3-2.62-4.3-2.62 0-3.02 2.05-3.02 4.17V24h-4V8z"/>
-            </svg>
-            <span>LinkedIn</span>
+            {/* Logo: fondo azul, letras blancas, alineado al texto */}
+            <span className="inline-flex w-4 h-4 items-center justify-center rounded-[3px] bg-[#0A66C2] text-white font-bold leading-none align-middle">in</span>
+            <span className="text-[#0A66C2] font-medium align-middle">LinkedIn</span>
           </a>
         </footer>
       </div>
@@ -322,5 +326,4 @@ function TablaBase({ titulo, params, selectedUnion }: { titulo: string; params: 
     </section>
   );
 }
-
 
