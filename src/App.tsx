@@ -185,12 +185,13 @@ export default function App() {
 
           {/* Seleccionados: tabla RESPONSIVE */}
           <div className="p-2 border-t border-slate-300 overflow-x-hidden">
-            <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm border-collapse">
+            <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm table-fixed border-collapse">
               <colgroup>
-                <col className="w-[110px] sm:w-[160px]" />
-                <col className="w-[140px] sm:w-[160px]" />
-                <col className="w-[110px] sm:w-[160px]" />
-                <col />
+                {/* Tres primeras = 35% en total; Descripción = 65% siempre */}
+                <col style={{ width: "11.6667%" }} />
+                <col style={{ width: "11.6667%" }} />
+                <col style={{ width: "11.6667%" }} />
+                <col style={{ width: "65%" }} />
               </colgroup>
               <tbody>
                 {Array.from({ length: 4 }).map((_, idx) => {
@@ -252,7 +253,7 @@ export default function App() {
             href="https://www.linkedin.com/in/sergioage"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-[clamp(12px,2.8vw,14px)] text-slate-700 hover:text-slate-900"
+            className="inline-flex items-center gap-2 text-xs text-slate-700 hover:text-slate-900"
           >
             <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="16" height="16" className="fill-current">
               <path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.05c.53-1 1.83-2.2 3.77-2.2 4.03 0 4.77 2.65 4.77 6.1V24h-4v-7.9c0-1.88-.03-4.3-2.62-4.3-2.62 0-3.02 2.05-3.02 4.17V24h-4V8z"/>
@@ -321,3 +322,4 @@ function TablaBase({ titulo, params, selectedUnion }: { titulo: string; params: 
     </section>
   );
 }
+
