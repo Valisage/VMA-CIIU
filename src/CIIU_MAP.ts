@@ -113,8 +113,11 @@ const CIIU_MAP: Record<string, { actividad: string; parametros: string[] }[]> = 
   "2391": [
     { actividad: "Fabricación de productos refractarios", parametros: ["Demanda Bioquímica de Oxígeno", "Demanda Química de Oxígeno", "Sólidos Suspendidos Totales", "Aceites y Grasas", "Boro", "Sulfatos", "Potencial Hidrógeno (pH)", "Sólidos Sedimentables", "Temperatura"] },
   ],
+  "2420": [
+  { actividad: "Fabricación de productos primarios de metales preciosos y otros metales no ferrosos", parametros: ["Demanda Bioquímica de Oxígeno", "Demanda Química de Oxígeno", "Sólidos Suspendidos Totales", "Aceites y Grasas", "Arsénico", "Cadmio", "Cianuro", "Cobre", "Cromo hexavalente", "Cromo total", "Níquel", "Plomo", "Sulfatos", "Zinc", "Potencial Hidrógeno (pH)"] },
+  ],
   "2420*": [
-    { actividad: "Fabricación de productos primarios de metales preciosos y otros metales no ferrosos", parametros: ["Demanda Bioquímica de Oxígeno", "Demanda Química de Oxígeno", "Sólidos Suspendidos Totales", "Aceites y Grasas", "Arsénico", "Cadmio", "Cianuro", "Cobre", "Cromo hexavalente", "Cromo total", "Níquel", "Plomo", "Sulfatos", "Zinc", "Potencial Hidrógeno (pH)"] },
+    { actividad: "Fabricación de productos primarios de metales preciosos y otros metales no ferrosos. *Si la empresa realiza procesos de galvanoplastía", parametros: ["Demanda Bioquímica de Oxígeno", "Demanda Química de Oxígeno", "Sólidos Suspendidos Totales", "Aceites y Grasas", "Arsénico", "Cadmio", "Cianuro", "Cobre", "Cromo hexavalente", "Cromo total", "Manganeso", "Mercurio", "Níquel", "Plomo", "Sulfatos", "Zinc", "Potencial Hidrógeno (pH)"] },
   ],
   "2520": [
     { actividad: "Fabricación de armas y municiones", parametros: ["Demanda Bioquímica de Oxígeno", "Demanda Química de Oxígeno", "Sólidos Suspendidos Totales", "Aceites y Grasas", "Aluminio", "Arsénico", "Boro", "Cadmio", "Cobre", "Cromo hexavalente", "Cromo total", "Mercurio", "Níquel", "Plomo", "Sulfatos", "Zinc", "Nitrógeno Amoniacal", "Potencial Hidrógeno (pH)", "Sólidos Sedimentables", "Temperatura"] },
