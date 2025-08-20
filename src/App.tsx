@@ -70,10 +70,6 @@ function stripDiacritics(s: string): string {
 
 // ====== App (tipografía responsiva y contención en celdas/combobox) ======
 export default function App() {
-  // --- Estado principal ---
-  const [selected, setSelected] = useState<string[]>([]);
-  const [q, setQ] = useState<string>("");
-  const [focused, setFocused] = useState<boolean>(false);
     const [q, setQ] = useState<string>("");
   const [focused, setFocused] = useState<boolean>(false);
 
@@ -115,7 +111,7 @@ export default function App() {
     setQ("");
     setFocused(false);
   };
-  const removeCode = (code: string) => setSelected((prev: string[]) => prev.filter(($1: string) => c !== code));
+  const removeCode = (code: string) => setSelected((prev: string[]) => prev.filter((c: string) => c !== code));
 
   // Tests mínimos (silenciosos)
   useEffect(() => {
