@@ -70,6 +70,10 @@ function stripDiacritics(s: string): string {
 
 // ====== App (tipografía responsiva y contención en celdas/combobox) ======
 export default function App() {
+  // Estado principal (necesario para selector CIIU)
+  const [selected, setSelected] = useState<string[]>([]);
+  const [q, setQ] = useState<string>("");
+  const [focused, setFocused] = useState<boolean>(false);
     const [q, setQ] = useState<string>("");
   const [focused, setFocused] = useState<boolean>(false);
 
