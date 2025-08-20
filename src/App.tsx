@@ -171,7 +171,7 @@ export default function App() {
                       <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-x-4">
                         <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Número de la CIIU:</div>
                         <div className="font-mono text-[clamp(12px,2.8vw,14px)] sm:text-sm">{o.code}</div>
-                        <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Descripción</div>
+                        <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Descripción:</div>
                         <div className="text-[clamp(12px,2.8vw,14px)] sm:text-sm leading-tight [overflow-wrap:anywhere] [hyphens:auto]">
                           {o.actividades[0] || "(sin actividad)"}
                         </div>
@@ -188,10 +188,10 @@ export default function App() {
             <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm table-fixed table-fixed border-collapse">
               <colgroup>
                 {/* Tres primeras = 45% (15% c/u); Descripción = 55% siempre */}
-                <col style={{ width: "18%" }} />
-                <col style={{ width: "12%" }} />
-                <col style={{ width: "18%" }} />
-                <col style={{ width: "52%" }} />
+                <col style={{ width: "20%" }} />
+                <col style={{ width: "10%" }} />
+                <col style={{ width: "20%" }} />
+                <col style={{ width: "50%" }} />
               </colgroup>
               <tbody>
                 {Array.from({ length: 4 }).map((_, idx) => {
