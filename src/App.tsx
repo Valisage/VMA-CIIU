@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
+import CIIU_MAP from "./CIIU_MAP";
 
 // ====== Estilos reutilizables ======
 const TD = "border border-slate-300 px-2 py-1 break-words [overflow-wrap:anywhere] [hyphens:auto]";
@@ -41,75 +42,6 @@ const PARAM_INFO: Record<string, ParamInfo> = {
   "Temperatura": { vma: "< 35 °C", dir: false, annex: 2 },
 };
 
-// ====== Fallback local si falta el archivo ./CIIU_MAP ======
-// Puedes reemplazar/expandir este objeto con todos los CIIU válidos.
-const FALLBACK_MAP: CIIUMap = {
-  "1701": [
-    {
-      actividad: "Fabricación de pulpa, papel y cartón",
-      parametros: [
-        "Demanda Bioquímica de Oxígeno",
-        "Demanda Química de Oxígeno",
-        "Sólidos Suspendidos Totales",
-        "Aceites y Grasas",
-        "Cromo total",
-        "Níquel",
-        "Plomo",
-        "Sulfatos",
-        "Zinc",
-        "Potencial Hidrógeno (pH)",
-        "Sólidos Sedimentables",
-        "Temperatura",
-      ],
-    },
-  ],
-  "2011": [
-    {
-      actividad: "Fabricación de sustancias y productos químicos básicos",
-      parametros: [
-        "Demanda Bioquímica de Oxígeno",
-        "Demanda Química de Oxígeno",
-        "Sólidos Suspendidos Totales",
-        "Aceites y Grasas",
-        "Aluminio",
-        "Arsénico",
-        "Cadmio",
-        "Cianuro",
-        "Cobre",
-        "Cromo hexavalente",
-        "Cromo total",
-        "Manganeso",
-        "Mercurio",
-        "Níquel",
-        "Plomo",
-        "Sulfatos",
-        "Zinc",
-        "Potencial Hidrógeno (pH)",
-        "Sólidos Sedimentables",
-        "Temperatura",
-      ],
-    },
-  ],
-  "2592": [
-    {
-      actividad: "Tratamiento y revestimiento de metales; mecanizado",
-      parametros: [
-        "Demanda Bioquímica de Oxígeno",
-        "Demanda Química de Oxígeno",
-        "Sólidos Suspendidos Totales",
-        "Aceites y Grasas",
-        "Cromo hexavalente",
-        "Cromo total",
-        "Níquel",
-        "Zinc",
-        "Potencial Hidrógeno (pH)",
-        "Sólidos Sedimentables",
-        "Temperatura",
-      ],
-    },
-  ],
-};
-
 // ====== Utilidades ======
 function unionParams(codes: string[], map: CIIUMap): Set<string> {
   const out = new Set<string>();
@@ -138,23 +70,10 @@ function stripDiacritics(s: string): string {
 
 // ====== App (tipografía responsiva y contención en celdas/combobox) ======
 export default function App() {
-  const [ciiuMap, setCiiuMap] = useState<CIIUMap>(FALLBACK_MAP); // usa fallback por defecto
-  const [selected, setSelected] = useState<string[]>([]);
-  const [q, setQ] = useState<string>("");
+    const [q, setQ] = useState<string>("");
   const [focused, setFocused] = useState<boolean>(false);
 
-  // Intento de carga dinámica de ./CIIU_MAP (si existe). Si no existe, seguimos con FALLBACK_MAP
-  useEffect(() => {
-    (async () => {
-      try {
-        const mod = await import("./CIIU_MAP");
-        if (mod && mod.default) setCiiuMap(mod.default as CIIUMap);
-      } catch {
-        // silencia si no existe el archivo; nos quedamos con el fallback
-      }
-    })();
-  }, []);
-
+  
   // Cerrar dropdown al clickear fuera
   const containerRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -169,7 +88,7 @@ export default function App() {
   // Opciones para el autocompletado
   const options = useMemo(() => {
     const list: { code: string; label: string; actividades: string[] }[] = [];
-    for (const [code, entries] of Object.entries(ciiuMap)) {
+    for (const [code, entries] of Object.entries(CIIU_MAP as CIIUMap)) {
       const acts = (entries || []).map((e) => e.actividad);
       const actividadPrincipal = acts[0] || "(sin actividad)";
       list.push({ code, label: `${code} — ${actividadPrincipal}`, actividades: acts });
@@ -184,7 +103,7 @@ export default function App() {
     return base.filter((o) => stripDiacritics(o.label).includes(nq) || o.code.includes(q.trim()));
   }, [options, selected, q]);
 
-  const selectedUnion = useMemo(() => unionParams(selected, ciiuMap), [selected, ciiuMap]);
+  const selectedUnion = useMemo(() => unionParams(selected, CIIU_MAP as any), [selected, ciiuMap]);
 
   const addCode = (code: string) => {
     if (!code) return;
@@ -264,33 +183,38 @@ export default function App() {
             )}
           </div>
 
-          {/* Seleccionados: tabla RESPONSIVE (sin scroll horizontal; envoltura por palabras) */}
+          {/* Seleccionados: tabla RESPONSIVE (auto layout; cuarta columna con volumen aun vacía) */}
           <div className="p-2 border-t border-slate-300">
-            <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm border-collapse table-fixed">
+            <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm border-collapse table-auto">
               <colgroup>
-                <col className="w-[110px] sm:w-[160px]" />
-                <col className="w-[110px] sm:w-[160px]" />
-                <col className="w-[110px] sm:w-[160px]" />
-                <col />
+                {/* 3 primeras columnas mínimas en móvil, cómodas en desktop */}
+                <col style={{ width: "72px" }} />
+                <col style={{ width: "84px" }} />
+                <col style={{ width: "90px" }} />
+                {/* La cuarta ocupa el resto incluso si está vacía */}
+                <col style={{ width: "auto" }} />
               </colgroup>
               <tbody>
                 {Array.from({ length: 4 }).map((_, idx) => {
                   const code = selected[idx];
-                  const acts = code ? ((ciiuMap as any)[code] || []).map((e: any) => e.actividad) : [];
+                  const acts = code ? ((CIIU_MAP as any)[code] || []).map((e: any) => e.actividad) : [];
                   const desc = acts[0] || "";
                   return (
                     <tr key={idx} className="align-top">
                       {idx === 0 && (
-                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal break-words leading-tight align-top">
+                        <td
+                          rowSpan={4}
+                          className="border border-slate-300 bg-slate-50 text-[10px] sm:text-xs text-slate-700 px-1 py-1 whitespace-normal break-words leading-tight align-top"
+                        >
                           Número de la CIIU:
                         </td>
                       )}
-                      <td className="border border-slate-300 px-2 py-1">
+                      <td className="border border-slate-300 px-1 py-1">
                         {code ? (
                           <>
                             <button
                               onClick={() => removeCode(code)}
-                              className="mr-2 w-5 h-5 inline-flex items-center justify-center rounded bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200"
+                              className="mr-1 w-5 h-5 inline-flex items-center justify-center rounded bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200"
                               aria-label={`Quitar ${code}`}
                               title="Quitar"
                             >
@@ -303,16 +227,18 @@ export default function App() {
                         )}
                       </td>
                       {idx === 0 && (
-                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal break-words leading-tight align-top">
+                        <td
+                          rowSpan={4}
+                          className="border border-slate-300 bg-slate-50 text-[10px] sm:text-xs text-slate-700 px-1 py-1 whitespace-normal break-words leading-tight align-top"
+                        >
                           Descripción
                         </td>
                       )}
-                      <td className="border border-slate-300 px-2 py-1 align-top">
-                        {desc ? (
-                          <span className="leading-tight break-words whitespace-normal hyphens-none">{desc}</span>
-                        ) : (
-                          <span className="text-slate-300">&nbsp;</span>
-                        )}
+                      <td className="border border-slate-300 px-1 py-1 align-top">
+                        {/* Wrapper con min-height y placeholder no rompible para dar volumen aun vacía */}
+                        <div className="min-h-[1.5rem] break-words whitespace-normal hyphens-none">
+                          {desc || " "}
+                        </div>
                       </td>
                     </tr>
                   );
