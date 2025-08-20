@@ -132,7 +132,7 @@ export default function App() {
         <header className="border-b border-slate-200 pb-2">
           <h1 className="text-xl sm:text-2xl font-semibold">Parámetros que aplica según CIIU - VMA</h1>
           <div className="text-xs sm:text-sm text-slate-600">
-            Basado en el D.S. 010-2019-VIVIENDA y la R.M. 116-2012-VIVIENDA
+            Basado en el D.S. 010-2019-VIVIENDA y la R.M. 360-2016-VIVIENDA
           </div>
         </header>
 
@@ -189,9 +189,9 @@ export default function App() {
               <colgroup>
                 {/* Tres primeras = 45% (15% c/u); Descripción = 55% siempre */}
                 <col style={{ width: "20%" }} />
-                <col style={{ width: "10%" }} />
+                <col style={{ width: "12%" }} />
                 <col style={{ width: "20%" }} />
-                <col style={{ width: "50%" }} />
+                <col style={{ width: "48%" }} />
               </colgroup>
               <tbody>
                 {Array.from({ length: 4 }).map((_, idx) => {
