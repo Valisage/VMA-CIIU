@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
+import CIIU_MAP from "./CIIU_MAP";
 
 // ====== Estilos reutilizables ======
 const TD = "border border-slate-300 px-2 py-1 break-words [overflow-wrap:anywhere] [hyphens:auto]";
@@ -41,75 +42,6 @@ const PARAM_INFO: Record<string, ParamInfo> = {
   "Temperatura": { vma: "< 35 °C", dir: false, annex: 2 },
 };
 
-// ====== Fallback local si falta el archivo ./CIIU_MAP ======
-// Puedes reemplazar/expandir este objeto con todos los CIIU válidos.
-const FALLBACK_MAP: CIIUMap = {
-  "1701": [
-    {
-      actividad: "Fabricación de pulpa, papel y cartón",
-      parametros: [
-        "Demanda Bioquímica de Oxígeno",
-        "Demanda Química de Oxígeno",
-        "Sólidos Suspendidos Totales",
-        "Aceites y Grasas",
-        "Cromo total",
-        "Níquel",
-        "Plomo",
-        "Sulfatos",
-        "Zinc",
-        "Potencial Hidrógeno (pH)",
-        "Sólidos Sedimentables",
-        "Temperatura",
-      ],
-    },
-  ],
-  "2011": [
-    {
-      actividad: "Fabricación de sustancias y productos químicos básicos",
-      parametros: [
-        "Demanda Bioquímica de Oxígeno",
-        "Demanda Química de Oxígeno",
-        "Sólidos Suspendidos Totales",
-        "Aceites y Grasas",
-        "Aluminio",
-        "Arsénico",
-        "Cadmio",
-        "Cianuro",
-        "Cobre",
-        "Cromo hexavalente",
-        "Cromo total",
-        "Manganeso",
-        "Mercurio",
-        "Níquel",
-        "Plomo",
-        "Sulfatos",
-        "Zinc",
-        "Potencial Hidrógeno (pH)",
-        "Sólidos Sedimentables",
-        "Temperatura",
-      ],
-    },
-  ],
-  "2592": [
-    {
-      actividad: "Tratamiento y revestimiento de metales; mecanizado",
-      parametros: [
-        "Demanda Bioquímica de Oxígeno",
-        "Demanda Química de Oxígeno",
-        "Sólidos Suspendidos Totales",
-        "Aceites y Grasas",
-        "Cromo hexavalente",
-        "Cromo total",
-        "Níquel",
-        "Zinc",
-        "Potencial Hidrógeno (pH)",
-        "Sólidos Sedimentables",
-        "Temperatura",
-      ],
-    },
-  ],
-};
-
 // ====== Utilidades ======
 function unionParams(codes: string[], map: CIIUMap): Set<string> {
   const out = new Set<string>();
@@ -133,27 +65,14 @@ function getCells(param: string, union: Set<string>): Cells {
 }
 
 function stripDiacritics(s: string): string {
-  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
 // ====== App (tipografía responsiva y contención en celdas/combobox) ======
 export default function App() {
-  const [ciiuMap, setCiiuMap] = useState<CIIUMap>(FALLBACK_MAP); // usa fallback por defecto
   const [selected, setSelected] = useState<string[]>([]);
   const [q, setQ] = useState<string>("");
   const [focused, setFocused] = useState<boolean>(false);
-
-  // Intento de carga dinámica de ./CIIU_MAP (si existe). Si no existe, seguimos con FALLBACK_MAP
-  useEffect(() => {
-    (async () => {
-      try {
-        const mod = await import("./CIIU_MAP");
-        if (mod && mod.default) setCiiuMap(mod.default as CIIUMap);
-      } catch {
-        // silencia si no existe el archivo; nos quedamos con el fallback
-      }
-    })();
-  }, []);
 
   // Cerrar dropdown al clickear fuera
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -169,13 +88,13 @@ export default function App() {
   // Opciones para el autocompletado
   const options = useMemo(() => {
     const list: { code: string; label: string; actividades: string[] }[] = [];
-    for (const [code, entries] of Object.entries(ciiuMap)) {
+    for (const [code, entries] of Object.entries(CIIU_MAP as Record<string, {actividad:string;parametros:string[]}[]>)) {
       const acts = (entries || []).map((e) => e.actividad);
       const actividadPrincipal = acts[0] || "(sin actividad)";
       list.push({ code, label: `${code} — ${actividadPrincipal}`, actividades: acts });
     }
     return list.sort((a, b) => a.code.localeCompare(b.code, "es"));
-  }, [ciiuMap]);
+  }, []);
 
   const visible = useMemo(() => {
     const base = options.filter((o) => !selected.includes(o.code));
@@ -184,7 +103,7 @@ export default function App() {
     return base.filter((o) => stripDiacritics(o.label).includes(nq) || o.code.includes(q.trim()));
   }, [options, selected, q]);
 
-  const selectedUnion = useMemo(() => unionParams(selected, ciiuMap), [selected, ciiuMap]);
+  const selectedUnion = useMemo(() => unionParams(selected, CIIU_MAP as any), [selected]);
 
   const addCode = (code: string) => {
     if (!code) return;
@@ -276,7 +195,7 @@ export default function App() {
               <tbody>
                 {Array.from({ length: 4 }).map((_, idx) => {
                   const code = selected[idx];
-                  const acts = code ? ((ciiuMap as any)[code] || []).map((e: any) => e.actividad) : [];
+                  const acts = code ? ((CIIU_MAP as any)[code] || []).map((e: any) => e.actividad) : [];
                   const desc = acts[0] || "";
                   return (
                     <tr key={idx} className="align-top">
@@ -327,23 +246,19 @@ export default function App() {
         <ParametrosTabla annex={2} selectedUnion={selectedUnion} titulo="Parámetros Anexo 2" />
 
         {/* Pie */}
-        <footer className="pt-2 border-t border-slate-200 text-center">
-          <div className="text-slate-700 text-xs sm:text-sm">Desarrollado por Sergio Gonzales Espinoza</div>
-          <div className="mt-1">
-            <a
-              href="https://www.linkedin.com/in/sergioage"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Perfil de LinkedIn de Sergio Gonzales Espinoza"
-              className="inline-flex items-center gap-1 rounded-md bg-[#0A66C2] hover:bg-[#0a5ab0] text-white px-2.5 py-1 text-[12px] sm:text-xs whitespace-nowrap shadow-sm"
-              title="LinkedIn: sergioage"
-            >
-              <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" className="fill-current">
-                <path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.05c.53-1 1.83-2.2 3.77-2.2 4.03 0 4.77 2.65 4.77 6.1V24h-4v-7.9c0-1.88-.03-4.3-2.62-4.3-2.62 0-3.02 2.05-3.02 4.17V24h-4V8z"/>
-              </svg>
-              <span>LinkedIn</span>
-            </a>
-          </div>
+        <footer className="text-center text-xs text-slate-600 pt-2 border-t border-slate-200 flex flex-col items-center gap-1">
+          <div>Desarrollado por Sergio Gonzales Espinoza</div>
+          <a
+            href="https://www.linkedin.com/in/sergioage"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-[clamp(12px,2.8vw,14px)] text-slate-700 hover:text-slate-900"
+          >
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="16" height="16" className="fill-current">
+              <path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.05c.53-1 1.83-2.2 3.77-2.2 4.03 0 4.77 2.65 4.77 6.1V24h-4v-7.9c0-1.88-.03-4.3-2.62-4.3-2.62 0-3.02 2.05-3.02 4.17V24h-4V8z"/>
+            </svg>
+            <span className="underline">linkedin.com/in/sergioage</span>
+          </a>
         </footer>
       </div>
     </div>
@@ -406,4 +321,3 @@ function TablaBase({ titulo, params, selectedUnion }: { titulo: string; params: 
     </section>
   );
 }
-
