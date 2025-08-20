@@ -253,7 +253,7 @@ export default function App() {
             href="https://www.linkedin.com/in/sergioage"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs"
+            className="inline-flex items-center gap-0.5 text-xs"
             aria-label="LinkedIn de Sergio Gonzales Espinoza"
             title="LinkedIn: sergioage"
           >
