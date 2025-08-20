@@ -403,3 +403,4 @@ function TablaBase({ titulo, params, selectedUnion }: { titulo: string; params: 
   );
 }
 
+
