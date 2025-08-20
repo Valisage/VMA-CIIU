@@ -70,6 +70,10 @@ function stripDiacritics(s: string): string {
 
 // ====== App (tipografía responsiva y contención en celdas/combobox) ======
 export default function App() {
+  // --- Estado principal ---
+  const [selected, setSelected] = useState<string[]>([]);
+  const [q, setQ] = useState<string>("");
+  const [focused, setFocused] = useState<boolean>(false);
     const [q, setQ] = useState<string>("");
   const [focused, setFocused] = useState<boolean>(false);
 
@@ -94,7 +98,7 @@ export default function App() {
       list.push({ code, label: `${code} — ${actividadPrincipal}`, actividades: acts });
     }
     return list.sort((a, b) => a.code.localeCompare(b.code, "es"));
-  }, [ciiuMap]);
+  }, [CIIU_MAP]);
 
   const visible = useMemo(() => {
     const base = options.filter((o) => !selected.includes(o.code));
@@ -103,15 +107,15 @@ export default function App() {
     return base.filter((o) => stripDiacritics(o.label).includes(nq) || o.code.includes(q.trim()));
   }, [options, selected, q]);
 
-  const selectedUnion = useMemo(() => unionParams(selected, CIIU_MAP as any), [selected, ciiuMap]);
+  const selectedUnion = useMemo(() => unionParams(selected, CIIU_MAP as any), [selected, CIIU_MAP]);
 
   const addCode = (code: string) => {
     if (!code) return;
-    setSelected((prev) => (prev.includes(code) ? prev : [...prev, code]));
+    setSelected((prev: string[]) => (prev.includes(code) ? prev : [...prev, code]));
     setQ("");
     setFocused(false);
   };
-  const removeCode = (code: string) => setSelected((prev) => prev.filter((c) => c !== code));
+  const removeCode = (code: string) => setSelected((prev: string[]) => prev.filter(($1: string) => c !== code));
 
   // Tests mínimos (silenciosos)
   useEffect(() => {
