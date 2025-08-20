@@ -253,7 +253,7 @@ export default function App() {
                         <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Número de la CIIU:</div>
                         <div className="font-mono text-[clamp(12px,2.8vw,14px)] sm:text-sm">{o.code}</div>
                         <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Descripción</div>
-                        <div className="text-[clamp(12px,2.8vw,14px)] sm:text-sm leading-tight break-normal whitespace-normal hyphens-none">
+                        <div className="text-[clamp(12px,2.8vw,14px)] sm:text-sm leading-tight break-words whitespace-normal hyphens-none">
                           {o.actividades[0] || "(sin actividad)"}
                         </div>
                       </div>
@@ -268,9 +268,9 @@ export default function App() {
           <div className="p-2 border-t border-slate-300">
             <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm border-collapse table-fixed">
               <colgroup>
-                <col className="w-[120px] sm:w-[160px]" />
-                <col className="w-[120px] sm:w-[160px]" />
-                <col className="w-[120px] sm:w-[160px]" />
+                <col className="w-[110px] sm:w-[160px]" />
+                <col className="w-[110px] sm:w-[160px]" />
+                <col className="w-[110px] sm:w-[160px]" />
                 <col />
               </colgroup>
               <tbody>
@@ -281,7 +281,7 @@ export default function App() {
                   return (
                     <tr key={idx} className="align-top">
                       {idx === 0 && (
-                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-nowrap align-top">
+                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal break-words leading-tight align-top">
                           Número de la CIIU:
                         </td>
                       )}
@@ -303,13 +303,13 @@ export default function App() {
                         )}
                       </td>
                       {idx === 0 && (
-                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-nowrap align-top">
+                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal break-words leading-tight align-top">
                           Descripción
                         </td>
                       )}
                       <td className="border border-slate-300 px-2 py-1 align-top">
                         {desc ? (
-                          <span className="leading-tight break-normal whitespace-normal hyphens-none">{desc}</span>
+                          <span className="leading-tight break-words whitespace-normal hyphens-none">{desc}</span>
                         ) : (
                           <span className="text-slate-300">&nbsp;</span>
                         )}
@@ -335,7 +335,7 @@ export default function App() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Perfil de LinkedIn de Sergio Gonzales Espinoza"
-              className="inline-flex items-center gap-1 rounded-md bg-[#0A66C2] hover:bg-[#0a5ab0] text-white px-2.5 py-1 text-[12px] sm:text-xs whitespace-nowrap shadow-sm"
+              className="inline-flex items-center gap-1 rounded-md bg-[#0A66C2] hover:bg-[#0a5ab0] text-white px-2.5 py-1 text-[12px] sm:text-xs whitespace-normal break-words leading-tight shadow-sm"
               title="LinkedIn: sergioage"
             >
               <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" className="fill-current">
@@ -406,4 +406,5 @@ function TablaBase({ titulo, params, selectedUnion }: { titulo: string; params: 
     </section>
   );
 }
+
 
