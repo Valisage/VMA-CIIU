@@ -185,14 +185,13 @@ export default function App() {
 
           {/* Seleccionados: tabla RESPONSIVE (auto layout; cuarta columna con volumen aun vacía) */}
           <div className="p-2 border-t border-slate-300">
-            <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm border-collapse table-auto">
+            <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm border-collapse table-fixed">
               <colgroup>
-                {/* 3 primeras columnas mínimas en móvil, cómodas en desktop */}
-                <col style={{ width: "72px" }} />
-                <col style={{ width: "84px" }} />
-                <col style={{ width: "90px" }} />
-                {/* La cuarta ocupa el resto incluso si está vacía */}
-                <col style={{ width: "auto" }} />
+                {/* 30% en total para las 3 primeras, 70% para descripción */}
+                <col style={{ width: "10%" }} />
+                <col style={{ width: "10%" }} />
+                <col style={{ width: "10%" }} />
+                <col style={{ width: "70%" }} />
               </colgroup>
               <tbody>
                 {Array.from({ length: 4 }).map((_, idx) => {
