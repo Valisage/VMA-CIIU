@@ -213,7 +213,7 @@ export default function App() {
         <header className="border-b border-slate-200 pb-2">
           <h1 className="text-xl sm:text-2xl font-semibold">Parámetros que aplica según CIIU - VMA</h1>
           <div className="text-xs sm:text-sm text-slate-600">
-            Basado en el D.S. 010-2019-VIVIENDA y la R.M. 116-2012-VIVIENDA
+            Basado en el D.S. 010-2019-VIVIENDA y la R.M. 360-2016-VIVIENDA
           </div>
         </header>
 
@@ -265,12 +265,12 @@ export default function App() {
           </div>
 
           {/* Seleccionados: tabla RESPONSIVE */}
-          <div className="p-2 border-t border-slate-300 overflow-x-hidden">
-            <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm border-collapse">
+          <div className="p-2 border-t border-slate-300 overflow-x-auto">
+            <table className="min-w-[720px] w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm table-fixed border-collapse">
               <colgroup>
-                <col className="w-[110px] sm:w-[160px]" />
-                <col className="w-[140px] sm:w-[160px]" />
-                <col className="w-[110px] sm:w-[160px]" />
+                <col style={{ width: "160px" }} />
+                <col style={{ width: "160px" }} />
+                <col style={{ width: "160px" }} />
                 <col />
               </colgroup>
               <tbody>
@@ -281,7 +281,7 @@ export default function App() {
                   return (
                     <tr key={idx} className="align-top">
                       {idx === 0 && (
-                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top">
+                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-nowrap align-top">
                           Número de la CIIU:
                         </td>
                       )}
@@ -303,16 +303,12 @@ export default function App() {
                         )}
                       </td>
                       {idx === 0 && (
-                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top">
+                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-nowrap align-top">
                           Descripción
                         </td>
                       )}
                       <td className="border border-slate-300 px-2 py-1">
-                        {desc ? (
-                          <span className="leading-tight [overflow-wrap:anywhere] [hyphens:auto]">{desc}</span>
-                        ) : (
-                          <span className="text-slate-300">&nbsp;</span>
-                        )}
+                        {desc ? <span className="leading-tight">{desc}</span> : <span className="text-slate-300">&nbsp;</span>}
                       </td>
                     </tr>
                   );
