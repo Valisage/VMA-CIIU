@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect, useRef } from "react";
 import CIIU_MAP from "./CIIU_MAP";
 
 // ====== Estilos reutilizables ======
-const TD = "border border-slate-300 px-2 py-1 break-words";
+const TD = "border border-slate-300 px-2 py-1 break-words [overflow-wrap:anywhere] [hyphens:auto]";
 const TD_CENTER = TD + " text-center";
 const TH = TD + " bg-slate-100 font-semibold";
 
@@ -68,7 +68,7 @@ function stripDiacritics(s: string): string {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
-// ====== App (ajuste de tipografías y ancho en móvil) ======
+// ====== App (tipografía responsiva y contención en celdas/combobox) ======
 export default function App() {
   const [selected, setSelected] = useState<string[]>([]);
   const [q, setQ] = useState<string>("");
@@ -138,7 +138,7 @@ export default function App() {
 
         {/* Selector con búsqueda */}
         <section className="border border-slate-300 rounded-md bg-white">
-          <div className={TH + " text-[12px] sm:text-sm"}>Seleccionar CIIU</div>
+          <div className={TH + " text-[clamp(11px,2.6vw,14px)] sm:text-sm"}>Seleccionar CIIU</div>
           <div ref={containerRef} className="relative">
             <div className="flex items-center gap-2 p-2">
               <input
@@ -149,7 +149,7 @@ export default function App() {
                   if (e.key === "Enter" && visible[0]) addCode(visible[0].code);
                 }}
                 placeholder="Buscar por código (p. ej. 5610) o actividad (p. ej. restaurantes)"
-                className="w-full px-3 py-2 rounded-md bg-white border border-slate-300 outline-none text-[12px] sm:text-sm placeholder:text-[11px] sm:placeholder:text-sm tracking-tight"
+                className="w-full px-3 py-2 rounded-md bg-white border border-slate-300 outline-none text-[clamp(12px,3.4vw,14px)] sm:text-sm placeholder:text-[clamp(11px,3vw,13px)] [overflow-wrap:anywhere] [hyphens:auto]"
               />
             </div>
 
@@ -159,7 +159,7 @@ export default function App() {
                 className="absolute z-10 mt-1 w-full bg-white border border-slate-300 rounded-md max-h-80 overflow-auto divide-y divide-slate-200 shadow"
               >
                 {visible.length === 0 ? (
-                  <li className="px-3 py-2 text-[12px] text-slate-500">Sin resultados</li>
+                  <li className="px-3 py-2 text-[clamp(12px,2.8vw,14px)] text-slate-500">Sin resultados</li>
                 ) : (
                   visible.map((o) => (
                     <li
@@ -169,10 +169,12 @@ export default function App() {
                     >
                       {/* Formato norma */}
                       <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-x-4">
-                        <div className="text-[10px] text-slate-500">Número de la CIIU:</div>
-                        <div className="font-mono text-[12px] sm:text-sm">{o.code}</div>
-                        <div className="text-[10px] text-slate-500">Descripción</div>
-                        <div className="text-[12px] sm:text-sm leading-tight">{o.actividades[0] || "(sin actividad)"}</div>
+                        <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Número de la CIIU:</div>
+                        <div className="font-mono text-[clamp(12px,2.8vw,14px)] sm:text-sm">{o.code}</div>
+                        <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Descripción</div>
+                        <div className="text-[clamp(12px,2.8vw,14px)] sm:text-sm leading-tight [overflow-wrap:anywhere] [hyphens:auto]">
+                          {o.actividades[0] || "(sin actividad)"}
+                        </div>
                       </div>
                     </li>
                   ))
@@ -183,7 +185,7 @@ export default function App() {
 
           {/* Seleccionados: tabla RESPONSIVE */}
           <div className="p-2 border-t border-slate-300 overflow-x-hidden">
-            <table className="w-full text-[12px] sm:text-sm border-collapse">
+            <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm border-collapse">
               <colgroup>
                 <col className="w-[110px] sm:w-[160px]" />
                 <col className="w-[140px] sm:w-[160px]" />
@@ -198,7 +200,7 @@ export default function App() {
                   return (
                     <tr key={idx} className="align-top">
                       {idx === 0 && (
-                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[10px] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top">
+                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top">
                           Número de la CIIU:
                         </td>
                       )}
@@ -220,12 +222,16 @@ export default function App() {
                         )}
                       </td>
                       {idx === 0 && (
-                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[10px] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top">
+                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top">
                           Descripción
                         </td>
                       )}
                       <td className="border border-slate-300 px-2 py-1">
-                        {desc ? <span className="text-[12px] sm:text-sm leading-tight">{desc}</span> : <span className="text-slate-300">&nbsp;</span>}
+                        {desc ? (
+                          <span className="leading-tight [overflow-wrap:anywhere] [hyphens:auto]">{desc}</span>
+                        ) : (
+                          <span className="text-slate-300">&nbsp;</span>
+                        )}
                       </td>
                     </tr>
                   );
@@ -240,8 +246,19 @@ export default function App() {
         <ParametrosTabla annex={2} selectedUnion={selectedUnion} titulo="Parámetros Anexo 2" />
 
         {/* Pie */}
-        <footer className="text-center text-xs text-slate-600 pt-2 border-t border-slate-200">
-          Desarrollado por Sergio Gonzales Espinoza
+        <footer className="text-center text-xs text-slate-600 pt-2 border-t border-slate-200 flex flex-col items-center gap-1">
+          <div>Desarrollado por Sergio Gonzales Espinoza</div>
+          <a
+            href="https://www.linkedin.com/in/sergioage"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-[clamp(12px,2.8vw,14px)] text-slate-700 hover:text-slate-900"
+          >
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="16" height="16" className="fill-current">
+              <path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.05c.53-1 1.83-2.2 3.77-2.2 4.03 0 4.77 2.65 4.77 6.1V24h-4v-7.9c0-1.88-.03-4.3-2.62-4.3-2.62 0-3.02 2.05-3.02 4.17V24h-4V8z"/>
+            </svg>
+            <span className="underline">linkedin.com/in/sergioage</span>
+          </a>
         </footer>
       </div>
     </div>
@@ -257,9 +274,9 @@ function ParametrosTabla({ annex, selectedUnion, titulo }: { annex: 1 | 2; selec
 function TablaBase({ titulo, params, selectedUnion }: { titulo: string; params: string[]; selectedUnion: Set<string> }) {
   return (
     <section className="border border-slate-300 rounded-md">
-      <div className={TH + " text-[12px] sm:text-sm"}>{titulo}</div>
+      <div className={TH + " text-[clamp(11px,2.6vw,14px)] sm:text-sm"}>{titulo}</div>
       <div className="overflow-x-hidden">
-        <table className="w-full text-[12px] sm:text-sm table-fixed border-collapse">
+        <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm table-fixed border-collapse">
           <colgroup>
             <col style={{ width: "40%" }} />
             <col style={{ width: "15%" }} />
@@ -269,17 +286,17 @@ function TablaBase({ titulo, params, selectedUnion }: { titulo: string; params: 
           </colgroup>
           <thead className="bg-slate-100">
             <tr>
-              <th className={TH + " text-left text-[11px] sm:text-sm leading-tight"} rowSpan={2}>Parámetro</th>
-              <th className={TH + " text-center text-[11px] sm:text-sm leading-tight"} rowSpan={2}>VMA</th>
-              <th className={TH + " text-center text-[11px] sm:text-sm leading-tight"} rowSpan={2}>N° muestra</th>
-              <th className={TH + " text-center text-[11px] sm:text-sm leading-tight"} colSpan={2}>Tipo de muestra</th>
+              <th className={TH + " text-left text-[clamp(11px,2.6vw,14px)] sm:text-sm leading-tight"} rowSpan={2}>Parámetro</th>
+              <th className={TH + " text-center text-[clamp(11px,2.6vw,14px)] sm:text-sm leading-tight"} rowSpan={2}>VMA</th>
+              <th className={TH + " text-center text-[clamp(11px,2.6vw,14px)] sm:text-sm leading-tight"} rowSpan={2}>N° muestra</th>
+              <th className={TH + " text-center text-[clamp(11px,2.6vw,14px)] sm:text-sm leading-tight"} colSpan={2}>Tipo de muestra</th>
             </tr>
             <tr>
-              <th className={TH + " text-center text-[10px] sm:text-sm leading-tight whitespace-normal"}>
+              <th className={TH + " text-center text-[clamp(10px,2.4vw,13px)] sm:text-sm leading-tight whitespace-normal"}>
                 <span className="hidden sm:inline">Muestra lab. Acreditado</span>
                 <span className="sm:hidden block">Muestra lab.<br/>acreditado</span>
               </th>
-              <th className={TH + " text-center text-[10px] sm:text-sm leading-tight whitespace-normal"}>
+              <th className={TH + " text-center text-[clamp(10px,2.4vw,13px)] sm:text-sm leading-tight whitespace-normal"}>
                 <span className="hidden sm:inline">Muestra dirimente</span>
                 <span className="sm:hidden block">Muestra<br/>dirimente</span>
               </th>
