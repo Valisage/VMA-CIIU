@@ -327,10 +327,9 @@ export default function App() {
         <ParametrosTabla annex={2} selectedUnion={selectedUnion} titulo="Parámetros Anexo 2" />
 
         {/* Pie */}
-        <footer className="pt-2 border-t border-slate-200">
-          <div className="flex flex-wrap items-center justify-center gap-2 text-slate-700 text-xs sm:text-sm">
-            <span className="text-center">Desarrollado por Sergio Gonzales Espinoza</span>
-            <span aria-hidden className="text-slate-400">·</span>
+        <footer className="pt-2 border-t border-slate-200 text-center">
+          <div className="text-slate-700 text-xs sm:text-sm">Desarrollado por Sergio Gonzales Espinoza</div>
+          <div className="mt-1">
             <a
               href="https://www.linkedin.com/in/sergioage"
               target="_blank"
