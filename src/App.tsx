@@ -183,11 +183,10 @@ export default function App() {
             )}
           </div>
 
-          {/* Seleccionados: tabla RESPONSIVE (auto layout; cuarta columna con volumen aun vacía) */}
+          {/* Seleccionados: tabla RESPONSIVE (3 primeras = 30%, descripción = 70% siempre) */}
           <div className="p-2 border-t border-slate-300">
-            <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm border-collapse table-fixed">
+            <table className="w-full table-fixed border-collapse text-[clamp(12px,2.8vw,14px)] sm:text-sm">
               <colgroup>
-                {/* 30% en total para las 3 primeras, 70% para descripción */}
                 <col style={{ width: "10%" }} />
                 <col style={{ width: "10%" }} />
                 <col style={{ width: "10%" }} />
@@ -234,8 +233,7 @@ export default function App() {
                         </td>
                       )}
                       <td className="border border-slate-300 px-1 py-1 align-top">
-                        {/* Wrapper con min-height y placeholder no rompible para dar volumen aun vacía */}
-                        <div className="min-h-[1.5rem] break-words whitespace-normal hyphens-none">
+                        <div className="min-h-[1.75rem] break-words whitespace-normal hyphens-none">
                           {desc || " "}
                         </div>
                       </td>
@@ -331,5 +329,3 @@ function TablaBase({ titulo, params, selectedUnion }: { titulo: string; params: 
     </section>
   );
 }
-
-
