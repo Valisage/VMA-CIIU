@@ -130,7 +130,7 @@ export default function App() {
       <div className="mx-auto max-w-7xl p-4 space-y-6">
         {/* Encabezado (se mantiene tamaño) */}
         <header className="border-b border-slate-200 pb-2">
-          <h1 className="text-xl sm:text-2xl font-semibold">Parámetros que aplica según CIIU - VMA</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold">Parámetros de cumplimiento obligatorio según CIIU - VMA</h1>
           <div className="text-xs sm:text-sm text-slate-600">
             Basado en el D.S. 010-2019-VIVIENDA y la R.M. 360-2016-VIVIENDA
           </div>
