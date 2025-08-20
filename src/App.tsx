@@ -213,7 +213,7 @@ export default function App() {
         <header className="border-b border-slate-200 pb-2">
           <h1 className="text-xl sm:text-2xl font-semibold">Parámetros que aplica según CIIU - VMA</h1>
           <div className="text-xs sm:text-sm text-slate-600">
-            Basado en el D.S. 010-2019-VIVIENDA y la R.M. 116-2012-VIVIENDA
+            Basado en el D.S. 010-2019-VIVIENDA y la R.M. 360-2016-VIVIENDA
           </div>
         </header>
 
@@ -329,8 +329,7 @@ export default function App() {
         {/* Pie */}
         <footer className="text-center text-xs text-slate-600 pt-2 border-t border-slate-200">
           <div className="inline-flex items-center justify-center gap-1">
-            <span>Desarrollado por Sergio Gonzales Espinoza</span>
-            <span>(</span>
+            <span>Desarrollado por Sergio Gonzales Espinoza </span>
             <a
               href="https://www.linkedin.com/in/sergioage"
               target="_blank"
@@ -342,7 +341,6 @@ export default function App() {
                 <path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.05c.53-1 1.83-2.2 3.77-2.2 4.03 0 4.77 2.65 4.77 6.1V24h-4v-7.9c0-1.88-.03-4.3-2.62-4.3-2.62 0-3.02 2.05-3.02 4.17V24h-4V8z"/>
               </svg>
             </a>
-            <span>)</span>
           </div>
         </footer>
       </div>
