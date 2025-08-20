@@ -224,7 +224,7 @@ export default function App() {
                       </td>
                       {idx === 0 && (
                         <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top">
-                          Descripción
+                          Descripción:
                         </td>
                       )}
                       <td className="border border-slate-300 px-2 py-1">
@@ -255,7 +255,7 @@ export default function App() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-xs text-[#0A66C2] hover:text-[#0a5ab0]"
           >
-            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="16" height="16" className="fill-current">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="12" height="12" className="fill-current">
               <path d="M4.98 3.5C4.98 4.88 3.86 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.05c.53-1 1.83-2.2 3.77-2.2 4.03 0 4.77 2.65 4.77 6.1V24h-4v-7.9c0-1.88-.03-4.3-2.62-4.3-2.62 0-3.02 2.05-3.02 4.17V24h-4V8z"/>
             </svg>
             <span>LinkedIn</span>
