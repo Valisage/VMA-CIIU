@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
-import CIIU_MAP from "./CIIU_MAP";
 
 // ====== Estilos reutilizables ======
 const TD = "border border-slate-300 px-2 py-1 break-words [overflow-wrap:anywhere] [hyphens:auto]";
@@ -42,6 +41,75 @@ const PARAM_INFO: Record<string, ParamInfo> = {
   "Temperatura": { vma: "< 35 °C", dir: false, annex: 2 },
 };
 
+// ====== Fallback local si falta el archivo ./CIIU_MAP ======
+// Puedes reemplazar/expandir este objeto con todos los CIIU válidos.
+const FALLBACK_MAP: CIIUMap = {
+  "1701": [
+    {
+      actividad: "Fabricación de pulpa, papel y cartón",
+      parametros: [
+        "Demanda Bioquímica de Oxígeno",
+        "Demanda Química de Oxígeno",
+        "Sólidos Suspendidos Totales",
+        "Aceites y Grasas",
+        "Cromo total",
+        "Níquel",
+        "Plomo",
+        "Sulfatos",
+        "Zinc",
+        "Potencial Hidrógeno (pH)",
+        "Sólidos Sedimentables",
+        "Temperatura",
+      ],
+    },
+  ],
+  "2011": [
+    {
+      actividad: "Fabricación de sustancias y productos químicos básicos",
+      parametros: [
+        "Demanda Bioquímica de Oxígeno",
+        "Demanda Química de Oxígeno",
+        "Sólidos Suspendidos Totales",
+        "Aceites y Grasas",
+        "Aluminio",
+        "Arsénico",
+        "Cadmio",
+        "Cianuro",
+        "Cobre",
+        "Cromo hexavalente",
+        "Cromo total",
+        "Manganeso",
+        "Mercurio",
+        "Níquel",
+        "Plomo",
+        "Sulfatos",
+        "Zinc",
+        "Potencial Hidrógeno (pH)",
+        "Sólidos Sedimentables",
+        "Temperatura",
+      ],
+    },
+  ],
+  "2592": [
+    {
+      actividad: "Tratamiento y revestimiento de metales; mecanizado",
+      parametros: [
+        "Demanda Bioquímica de Oxígeno",
+        "Demanda Química de Oxígeno",
+        "Sólidos Suspendidos Totales",
+        "Aceites y Grasas",
+        "Cromo hexavalente",
+        "Cromo total",
+        "Níquel",
+        "Zinc",
+        "Potencial Hidrógeno (pH)",
+        "Sólidos Sedimentables",
+        "Temperatura",
+      ],
+    },
+  ],
+};
+
 // ====== Utilidades ======
 function unionParams(codes: string[], map: CIIUMap): Set<string> {
   const out = new Set<string>();
@@ -70,14 +138,23 @@ function stripDiacritics(s: string): string {
 
 // ====== App (tipografía responsiva y contención en celdas/combobox) ======
 export default function App() {
-  // Estado principal (necesario para selector CIIU)
+  const [ciiuMap, setCiiuMap] = useState<CIIUMap>(FALLBACK_MAP); // usa fallback por defecto
   const [selected, setSelected] = useState<string[]>([]);
   const [q, setQ] = useState<string>("");
   const [focused, setFocused] = useState<boolean>(false);
-    const [q, setQ] = useState<string>("");
-  const [focused, setFocused] = useState<boolean>(false);
 
-  
+  // Intento de carga dinámica de ./CIIU_MAP (si existe). Si no existe, seguimos con FALLBACK_MAP
+  useEffect(() => {
+    (async () => {
+      try {
+        const mod = await import("./CIIU_MAP");
+        if (mod && mod.default) setCiiuMap(mod.default as CIIUMap);
+      } catch {
+        // silencia si no existe el archivo; nos quedamos con el fallback
+      }
+    })();
+  }, []);
+
   // Cerrar dropdown al clickear fuera
   const containerRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -92,13 +169,13 @@ export default function App() {
   // Opciones para el autocompletado
   const options = useMemo(() => {
     const list: { code: string; label: string; actividades: string[] }[] = [];
-    for (const [code, entries] of Object.entries(CIIU_MAP as CIIUMap)) {
+    for (const [code, entries] of Object.entries(ciiuMap)) {
       const acts = (entries || []).map((e) => e.actividad);
       const actividadPrincipal = acts[0] || "(sin actividad)";
       list.push({ code, label: `${code} — ${actividadPrincipal}`, actividades: acts });
     }
     return list.sort((a, b) => a.code.localeCompare(b.code, "es"));
-  }, [CIIU_MAP]);
+  }, [ciiuMap]);
 
   const visible = useMemo(() => {
     const base = options.filter((o) => !selected.includes(o.code));
@@ -107,15 +184,15 @@ export default function App() {
     return base.filter((o) => stripDiacritics(o.label).includes(nq) || o.code.includes(q.trim()));
   }, [options, selected, q]);
 
-  const selectedUnion = useMemo(() => unionParams(selected, CIIU_MAP as any), [selected, CIIU_MAP]);
+  const selectedUnion = useMemo(() => unionParams(selected, ciiuMap), [selected, ciiuMap]);
 
   const addCode = (code: string) => {
     if (!code) return;
-    setSelected((prev: string[]) => (prev.includes(code) ? prev : [...prev, code]));
+    setSelected((prev) => (prev.includes(code) ? prev : [...prev, code]));
     setQ("");
     setFocused(false);
   };
-  const removeCode = (code: string) => setSelected((prev: string[]) => prev.filter((c: string) => c !== code));
+  const removeCode = (code: string) => setSelected((prev) => prev.filter((c) => c !== code));
 
   // Tests mínimos (silenciosos)
   useEffect(() => {
@@ -136,7 +213,7 @@ export default function App() {
         <header className="border-b border-slate-200 pb-2">
           <h1 className="text-xl sm:text-2xl font-semibold">Parámetros que aplica según CIIU - VMA</h1>
           <div className="text-xs sm:text-sm text-slate-600">
-            Basado en el D.S. 010-2019-VIVIENDA y la R.M. 360-2016-VIVIENDA
+            Basado en el D.S. 010-2019-VIVIENDA y la R.M. 116-2012-VIVIENDA
           </div>
         </header>
 
@@ -176,7 +253,7 @@ export default function App() {
                         <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Número de la CIIU:</div>
                         <div className="font-mono text-[clamp(12px,2.8vw,14px)] sm:text-sm">{o.code}</div>
                         <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Descripción</div>
-                        <div className="text-[clamp(12px,2.8vw,14px)] sm:text-sm leading-tight break-words whitespace-normal hyphens-none">
+                        <div className="text-[clamp(12px,2.8vw,14px)] sm:text-sm leading-tight [overflow-wrap:anywhere] [hyphens:auto]">
                           {o.actividades[0] || "(sin actividad)"}
                         </div>
                       </div>
@@ -187,36 +264,33 @@ export default function App() {
             )}
           </div>
 
-          {/* Seleccionados: tabla RESPONSIVE (3 primeras = 30%, descripción = 70% siempre) */}
-          <div className="p-2 border-t border-slate-300">
-            <table className="w-full table-fixed border-collapse text-[clamp(12px,2.8vw,14px)] sm:text-sm">
+          {/* Seleccionados: tabla RESPONSIVE */}
+          <div className="p-2 border-t border-slate-300 overflow-x-hidden">
+            <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm border-collapse">
               <colgroup>
-                <col style={{ width: "10%" }} />
-                <col style={{ width: "10%" }} />
-                <col style={{ width: "10%" }} />
-                <col style={{ width: "70%" }} />
+                <col className="w-[110px] sm:w-[160px]" />
+                <col className="w-[140px] sm:w-[160px]" />
+                <col className="w-[110px] sm:w-[160px]" />
+                <col />
               </colgroup>
               <tbody>
                 {Array.from({ length: 4 }).map((_, idx) => {
                   const code = selected[idx];
-                  const acts = code ? ((CIIU_MAP as any)[code] || []).map((e: any) => e.actividad) : [];
+                  const acts = code ? ((ciiuMap as any)[code] || []).map((e: any) => e.actividad) : [];
                   const desc = acts[0] || "";
                   return (
                     <tr key={idx} className="align-top">
                       {idx === 0 && (
-                        <td
-                          rowSpan={4}
-                          className="border border-slate-300 bg-slate-50 text-[10px] sm:text-xs text-slate-700 px-1 py-1 whitespace-normal break-words leading-tight align-top"
-                        >
+                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top">
                           Número de la CIIU:
                         </td>
                       )}
-                      <td className="border border-slate-300 px-1 py-1">
+                      <td className="border border-slate-300 px-2 py-1">
                         {code ? (
                           <>
                             <button
                               onClick={() => removeCode(code)}
-                              className="mr-1 w-5 h-5 inline-flex items-center justify-center rounded bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200"
+                              className="mr-2 w-5 h-5 inline-flex items-center justify-center rounded bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200"
                               aria-label={`Quitar ${code}`}
                               title="Quitar"
                             >
@@ -229,17 +303,16 @@ export default function App() {
                         )}
                       </td>
                       {idx === 0 && (
-                        <td
-                          rowSpan={4}
-                          className="border border-slate-300 bg-slate-50 text-[10px] sm:text-xs text-slate-700 px-1 py-1 whitespace-normal break-words leading-tight align-top"
-                        >
+                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top">
                           Descripción
                         </td>
                       )}
-                      <td className="border border-slate-300 px-1 py-1 align-top">
-                        <div className="min-h-[1.75rem] break-words whitespace-normal hyphens-none">
-                          {desc || " "}
-                        </div>
+                      <td className="border border-slate-300 px-2 py-1">
+                        {desc ? (
+                          <span className="leading-tight [overflow-wrap:anywhere] [hyphens:auto]">{desc}</span>
+                        ) : (
+                          <span className="text-slate-300">&nbsp;</span>
+                        )}
                       </td>
                     </tr>
                   );
@@ -262,7 +335,7 @@ export default function App() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Perfil de LinkedIn de Sergio Gonzales Espinoza"
-              className="inline-flex items-center gap-1 rounded-md bg-[#0A66C2] hover:bg-[#0a5ab0] text-white px-2.5 py-1 text-[12px] sm:text-xs whitespace-normal break-words leading-tight shadow-sm"
+              className="inline-flex items-center gap-1 rounded-md bg-[#0A66C2] hover:bg-[#0a5ab0] text-white px-2.5 py-1 text-[12px] sm:text-xs whitespace-nowrap shadow-sm"
               title="LinkedIn: sergioage"
             >
               <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="14" height="14" className="fill-current">
@@ -333,3 +406,4 @@ function TablaBase({ titulo, params, selectedUnion }: { titulo: string; params: 
     </section>
   );
 }
+
