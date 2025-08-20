@@ -188,10 +188,10 @@ export default function App() {
             <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm table-fixed table-fixed border-collapse">
               <colgroup>
                 {/* Tres primeras = 45% (15% c/u); Descripción = 55% siempre */}
-                <col style={{ width: "12.5%" }} />
-                <col style={{ width: "12.5%" }} />
-                <col style={{ width: "20%" }} />
-                <col style={{ width: "55%" }} />
+                <col style={{ width: "18%" }} />
+                <col style={{ width: "12%" }} />
+                <col style={{ width: "18%" }} />
+                <col style={{ width: "52%" }} />
               </colgroup>
               <tbody>
                 {Array.from({ length: 4 }).map((_, idx) => {
