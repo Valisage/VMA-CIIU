@@ -253,7 +253,7 @@ export default function App() {
                         <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Número de la CIIU:</div>
                         <div className="font-mono text-[clamp(12px,2.8vw,14px)] sm:text-sm">{o.code}</div>
                         <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Descripción</div>
-                        <div className="text-[clamp(12px,2.8vw,14px)] sm:text-sm leading-tight [overflow-wrap:anywhere] [hyphens:auto]">
+                        <div className="text-[clamp(12px,2.8vw,14px)] sm:text-sm leading-tight break-normal whitespace-normal hyphens-none">
                           {o.actividades[0] || "(sin actividad)"}
                         </div>
                       </div>
@@ -264,13 +264,13 @@ export default function App() {
             )}
           </div>
 
-          {/* Seleccionados: tabla RESPONSIVE */}
-          <div className="p-2 border-t border-slate-300 overflow-x-auto">
-            <table className="min-w-[720px] w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm table-fixed border-collapse">
+          {/* Seleccionados: tabla RESPONSIVE (sin scroll horizontal; envoltura por palabras) */}
+          <div className="p-2 border-t border-slate-300">
+            <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm border-collapse table-fixed">
               <colgroup>
-                <col style={{ width: "160px" }} />
-                <col style={{ width: "160px" }} />
-                <col style={{ width: "160px" }} />
+                <col className="w-[120px] sm:w-[160px]" />
+                <col className="w-[120px] sm:w-[160px]" />
+                <col className="w-[120px] sm:w-[160px]" />
                 <col />
               </colgroup>
               <tbody>
@@ -307,8 +307,12 @@ export default function App() {
                           Descripción
                         </td>
                       )}
-                      <td className="border border-slate-300 px-2 py-1">
-                        {desc ? <span className="leading-tight">{desc}</span> : <span className="text-slate-300">&nbsp;</span>}
+                      <td className="border border-slate-300 px-2 py-1 align-top">
+                        {desc ? (
+                          <span className="leading-tight break-normal whitespace-normal hyphens-none">{desc}</span>
+                        ) : (
+                          <span className="text-slate-300">&nbsp;</span>
+                        )}
                       </td>
                     </tr>
                   );
@@ -402,5 +406,4 @@ function TablaBase({ titulo, params, selectedUnion }: { titulo: string; params: 
     </section>
   );
 }
-
 
