@@ -1,4 +1,4 @@
-mport React, { useMemo, useState, useEffect, useRef } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import CIIU_MAP from "./CIIU_MAP";
 
 // ====== Estilos reutilizables ======
