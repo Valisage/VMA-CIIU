@@ -263,7 +263,6 @@ export default function App() {
             title="LinkedIn: sergioage"
           >
             {/* "Linked" azul sobre fondo blanco + badge "in" blanco sobre azul */}
-            <span className="text-[#0A66C2] font-medium leading-none align-middle">Linked</span>
             <span className="inline-flex w-4 h-4 items-center justify-center rounded-[3px] bg-[#0A66C2] text-white font-bold text-[10px] leading-none align-middle">
               in
             </span>
