@@ -1,15 +1,32 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import CIIU_MAP from "./CIIU_MAP";
+// Nota: para casos especiales (p.ej., 2420 con galvanoplastía) puedes
+// añadir una segunda clave como "2420G" en CIIU_MAP. El UI mostrará
+// igualmente "2420" (usamos el prefijo numérico como código visible),
+// pero internamente serán distintos y podrás seleccionar ambos.
 
 // ====== Estilos reutilizables ======
 const TD = "border border-slate-300 px-2 py-1 break-words [overflow-wrap:anywhere] [hyphens:auto]";
 const TD_CENTER = TD + " text-center";
 const TH = TD + " bg-slate-100 font-semibold";
 
+// ====== Encabezado de empresa ======
+const COMPANY = {
+  name: "AYNA INGENIERIA Y SOLUCIONES AMBIENTALES",
+  tagline: "Levantamientos y soluciones para VMA",
+  phone: "+51 905 629 167",
+  waNumberRaw: "51905629167", // para wa.me se usa sin '+' ni espacios
+  // Sube tu logo a public/logo.svg en tu repo (o cambia por una URL externa)
+  logoSrc: "https://i.ibb.co/HfGP790J/LOGO.jpg",
+};
+
+
+
 // ====== Tipos ======
 type CiiuEntry = { actividad: string; parametros: string[] };
 type CIIUMap = Record<string, CiiuEntry[]>;
 type ParamInfo = { vma: string; dir: boolean; annex: 1 | 2 };
+
 type Cells = { vma: string; n: "" | "1" | "2"; lab: "X" | ""; dir: "X" | "" };
 
 // ====== Tabla VMA / Dirimente por parámetro ======
@@ -19,7 +36,6 @@ const PARAM_INFO: Record<string, ParamInfo> = {
   "Demanda Química de Oxígeno": { vma: "1000 mg/L", dir: true, annex: 1 },
   "Sólidos Suspendidos Totales": { vma: "500 mg/L", dir: false, annex: 1 },
   "Aceites y Grasas": { vma: "100 mg/L", dir: true, annex: 1 },
-
   // Anexo 2
   "Aluminio": { vma: "10 mg/L", dir: true, annex: 2 },
   "Arsénico": { vma: "0.5 mg/L", dir: true, annex: 2 },
@@ -68,11 +84,13 @@ function stripDiacritics(s: string): string {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
 
-// ====== App ======
+// ====== App (tipografía responsiva y contención en celdas/combobox) ======
 export default function App() {
   const [selected, setSelected] = useState<string[]>([]);
   const [q, setQ] = useState<string>("");
   const [focused, setFocused] = useState<boolean>(false);
+  // Control del logo (permite fallback si la URL no es directa a imagen)
+  const [logoUrl, setLogoUrl] = useState<string>(COMPANY.logoSrc);
 
   // Cerrar dropdown al clickear fuera
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -87,20 +105,21 @@ export default function App() {
 
   // Opciones para el autocompletado
   const options = useMemo(() => {
-    const list: { code: string; label: string; actividades: string[] }[] = [];
+    const list: { code: string; codeDisplay: string; label: string; actividades: string[] }[] = [];
     for (const [code, entries] of Object.entries(CIIU_MAP as Record<string, {actividad:string;parametros:string[]}[]>)) {
       const acts = (entries || []).map((e) => e.actividad);
       const actividadPrincipal = acts[0] || "(sin actividad)";
-      list.push({ code, label: `${code} — ${actividadPrincipal}`, actividades: acts });
+      const codeDisplay = String(code).replace(/[^0-9].*$/, ""); // "2420G" -> "2420"
+      list.push({ code, codeDisplay, label: `${codeDisplay} — ${actividadPrincipal}`, actividades: acts });
     }
-    return list.sort((a, b) => a.code.localeCompare(b.code, "es"));
+    return list.sort((a, b) => a.codeDisplay.localeCompare(b.codeDisplay, "es"));
   }, []);
 
   const visible = useMemo(() => {
     const base = options.filter((o) => !selected.includes(o.code));
     if (!q.trim()) return base;
     const nq = stripDiacritics(q.trim());
-    return base.filter((o) => stripDiacritics(o.label).includes(nq) || o.code.includes(q.trim()));
+    return base.filter((o) => stripDiacritics(o.label).includes(nq) || o.codeDisplay.includes(q.trim()));
   }, [options, selected, q]);
 
   const selectedUnion = useMemo(() => unionParams(selected, CIIU_MAP as any), [selected]);
@@ -129,6 +148,40 @@ export default function App() {
     <div className="min-h-screen bg-white text-slate-900">
       <div className="mx-auto max-w-7xl p-4 space-y-6">
         {/* Encabezado (se mantiene tamaño) */}
+        {/* Encabezado de empresa */}
+        
+
+        {/* Encabezado de empresa */}
+        <section className="border-b border-slate-300 pb-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <img
+              src={COMPANY.logoSrc}
+              alt={COMPANY.name}
+              className="w-12 h-12 object-contain"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+            />
+            <div className="flex-1 min-w-[220px]">
+              <h2 className="text-base sm:text-lg font-semibold leading-tight">{COMPANY.name}</h2>
+              <div className="text-xs sm:text-sm text-slate-700 leading-tight">{COMPANY.tagline}</div>
+              <div className="text-xs text-slate-500 leading-tight">Contacto: {COMPANY.phone}</div>
+            </div>
+            <a
+              href={`https://wa.me/${COMPANY.waNumberRaw}?text=${encodeURIComponent('Hola, me gustaría una cotización de levantamientos y soluciones para VMA.')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 rounded-md bg-[#25D366] hover:bg-[#1ebe5a] text-white px-2.5 py-1.5 text-xs shadow-sm"
+              aria-label="Escribir por WhatsApp"
+              title="Escribir por WhatsApp"
+            >
+              <svg aria-hidden="true" viewBox="0 0 32 32" width="14" height="14" className="fill-current">
+                <path d="M19.11 17.56c-.3-.15-1.78-.88-2.06-.98-.28-.1-.48-.15-.68.15-.2.3-.78.98-.96 1.18-.18.2-.35.23-.65.08-.3-.15-1.25-.46-2.38-1.46-.88-.79-1.47-1.77-1.64-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.46-.53.15-.18.2-.3.3-.5.1-.2.05-.38-.03-.53-.08-.15-.68-1.63-.93-2.23-.24-.58-.49-.5-.68-.5-.17-.01-.38-.01-.58-.01-.2 0-.53.08-.81.38-.28.3-1.07 1.05-1.07 2.55 0 1.5 1.1 2.95 1.26 3.15.16.2 2.16 3.3 5.23 4.52.73.31 1.3.49 1.74.63.73.23 1.4.2 1.93.12.59-.09 1.78-.73 2.03-1.44.25-.71.25-1.31.17-1.44-.08-.13-.27-.2-.57-.35zM16.02 5C10.51 5 6 9.5 6 15c0 1.77.46 3.43 1.27 4.88L6 27l7.24-1.9c1.39.76 2.98 1.2 4.78 1.2 5.51 0 10.02-4.5 10.02-10.02C28.04 9.5 21.54 5 16.02 5z"></path>
+              </svg>
+              <span>WhatsApp</span>
+            </a>
+          </div>
+        </section>
+
+        {/* Encabezado de la herramienta */}
         <header className="border-b border-slate-200 pb-2">
           <h1 className="text-xl sm:text-2xl font-semibold">Parámetros de cumplimiento obligatorio según CIIU - VMA</h1>
           <div className="text-xs sm:text-sm text-slate-600">
@@ -152,6 +205,7 @@ export default function App() {
                 className="w-full px-3 py-2 rounded-md bg-white border border-slate-300 outline-none text-[clamp(12px,3.4vw,14px)] sm:text-sm placeholder:text-[clamp(11px,3vw,13px)] [overflow-wrap:anywhere] [hyphens:auto]"
               />
             </div>
+
             {focused && (
               <ul
                 role="listbox"
@@ -169,7 +223,7 @@ export default function App() {
                       {/* Formato norma */}
                       <div className="grid grid-cols-1 sm:grid-cols-[160px_1fr] gap-x-4">
                         <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Número de la CIIU:</div>
-                        <div className="font-mono text-[clamp(12px,2.8vw,14px)] sm:text-sm">{o.code}</div>
+                        <div className="font-mono text-[clamp(12px,2.8vw,14px)] sm:text-sm">{o.codeDisplay}</div>
                         <div className="text-[clamp(10px,2.4vw,12px)] text-slate-500">Descripción</div>
                         <div className="text-[clamp(12px,2.8vw,14px)] sm:text-sm leading-tight [overflow-wrap:anywhere] [hyphens:auto]">
                           {o.actividades[0] || "(sin actividad)"}
@@ -195,15 +249,13 @@ export default function App() {
               <tbody>
                 {Array.from({ length: 4 }).map((_, idx) => {
                   const code = selected[idx];
+                  const codeDisplay = (code || "").replace(/[^0-9].*$/, "");
                   const acts = code ? ((CIIU_MAP as any)[code] || []).map((e: any) => e.actividad) : [];
                   const desc = acts[0] || "";
                   return (
                     <tr key={idx} className="align-top">
                       {idx === 0 && (
-                        <td
-                          rowSpan={4}
-                          className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top"
-                        >
+                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top">
                           Número de la CIIU:
                         </td>
                       )}
@@ -213,22 +265,19 @@ export default function App() {
                             <button
                               onClick={() => removeCode(code)}
                               className="mr-2 w-5 h-5 inline-flex items-center justify-center rounded bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200"
-                              aria-label={`Quitar ${code}`}
+                              aria-label={`Quitar ${codeDisplay}`}
                               title="Quitar"
                             >
                               ×
                             </button>
-                            <span className="font-mono">{code}</span>
+                            <span className="font-mono">{codeDisplay}</span>
                           </>
                         ) : (
                           <span className="text-slate-300">&nbsp;</span>
                         )}
                       </td>
                       {idx === 0 && (
-                        <td
-                          rowSpan={4}
-                          className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top"
-                        >
+                        <td rowSpan={4} className="border border-slate-300 bg-slate-50 text-[clamp(10px,2.4vw,12px)] sm:text-xs text-slate-700 px-2 py-1 whitespace-normal sm:whitespace-nowrap leading-tight align-top">
                           Descripción
                         </td>
                       )}
@@ -262,10 +311,9 @@ export default function App() {
             aria-label="LinkedIn de Sergio Gonzales Espinoza"
             title="LinkedIn: sergioage"
           >
-            {/* "Linked" azul sobre fondo blanco + badge "in" blanco sobre azul */}
-            <span className="inline-flex w-4 h-4 items-center justify-center rounded-[3px] bg-[#0A66C2] text-white font-bold text-[10px] leading-none align-middle">
-              in
-            </span>
+            {/* Texto "Linked" azul (fondo blanco) + badge "in" blanco sobre fondo azul */}
+            <span className="text-[#0A66C2] font-medium leading-none align-middle tracking-tight">Linked</span>
+            <span className="inline-flex w-4 h-4 items-center justify-center rounded-[3px] bg-[#0A66C2] text-white font-bold text-[10px] leading-none align-middle">in</span>
           </a>
         </footer>
       </div>
@@ -274,31 +322,12 @@ export default function App() {
 }
 
 // ====== Componentes ======
-function ParametrosTabla({
-  annex,
-  selectedUnion,
-  titulo,
-}: {
-  annex: 1 | 2;
-  selectedUnion: Set<string>;
-  titulo: string;
-}) {
-  const params = useMemo(
-    () => Object.keys(PARAM_INFO).filter((k) => PARAM_INFO[k].annex === annex),
-    [annex]
-  );
+function ParametrosTabla({ annex, selectedUnion, titulo }: { annex: 1 | 2; selectedUnion: Set<string>; titulo: string }) {
+  const params = useMemo(() => Object.keys(PARAM_INFO).filter((k) => PARAM_INFO[k].annex === annex), [annex]);
   return <TablaBase titulo={titulo} params={params} selectedUnion={selectedUnion} />;
 }
 
-function TablaBase({
-  titulo,
-  params,
-  selectedUnion,
-}: {
-  titulo: string;
-  params: string[];
-  selectedUnion: Set<string>;
-}) {
+function TablaBase({ titulo, params, selectedUnion }: { titulo: string; params: string[]; selectedUnion: Set<string> }) {
   return (
     <section className="border border-slate-300 rounded-md">
       <div className={TH + " text-[clamp(11px,2.6vw,14px)] sm:text-sm"}>{titulo}</div>
@@ -313,43 +342,19 @@ function TablaBase({
           </colgroup>
           <thead className="bg-slate-100">
             <tr>
-              <th
-                className={TH + " text-left text-[clamp(11px,2.6vw,14px)] sm:text-sm leading-tight"}
-                rowSpan={2}
-              >
-                Parámetro
-              </th>
-              <th
-                className={TH + " text-center text-[clamp(11px,2.6vw,14px)] sm:text-sm leading-tight"}
-                rowSpan={2}
-              >
-                VMA
-              </th>
-              <th
-                className={TH + " text-center text-[clamp(11px,2.6vw,14px)] sm:text-sm leading-tight"}
-                rowSpan={2}
-              >
-                N° muestra
-              </th>
-              <th
-                className={TH + " text-center text-[clamp(11px,2.6vw,14px)] sm:text-sm leading-tight"}
-                colSpan={2}
-              >
-                Tipo de muestra
-              </th>
+              <th className={TH + " text-left text-[clamp(11px,2.6vw,14px)] sm:text-sm leading-tight"} rowSpan={2}>Parámetro</th>
+              <th className={TH + " text-center text-[clamp(11px,2.6vw,14px)] sm:text-sm leading-tight"} rowSpan={2}>VMA</th>
+              <th className={TH + " text-center text-[clamp(11px,2.6vw,14px)] sm:text-sm leading-tight"} rowSpan={2}>N° muestra</th>
+              <th className={TH + " text-center text-[clamp(11px,2.6vw,14px)] sm:text-sm leading-tight"} colSpan={2}>Tipo de muestra</th>
             </tr>
             <tr>
-              <th
-                className={TH + " text-center text-[clamp(10px,2.4vw,13px)] sm:text-sm leading-tight whitespace-normal"}
-              >
+              <th className={TH + " text-center text-[clamp(10px,2.4vw,13px)] sm:text-sm leading-tight whitespace-normal"}>
                 <span className="hidden sm:inline">Muestra lab. Acreditado</span>
-                <span className="sm:hidden block">Muestra lab.<br />acreditado</span>
+                <span className="sm:hidden block">Muestra lab.<br/>acreditado</span>
               </th>
-              <th
-                className={TH + " text-center text-[clamp(10px,2.4vw,13px)] sm:text-sm leading-tight whitespace-normal"}
-              >
+              <th className={TH + " text-center text-[clamp(10px,2.4vw,13px)] sm:text-sm leading-tight whitespace-normal"}>
                 <span className="hidden sm:inline">Muestra dirimente</span>
-                <span className="sm:hidden block">Muestra<br />dirimente</span>
+                <span className="sm:hidden block">Muestra<br/>dirimente</span>
               </th>
             </tr>
           </thead>
@@ -372,3 +377,4 @@ function TablaBase({
     </section>
   );
 }
+
