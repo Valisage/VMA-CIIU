@@ -1,9 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import CIIU_MAP from "./CIIU_MAP";
-// Nota: para casos especiales (p.ej., 2420 con galvanoplastía) puedes
-// añadir una segunda clave como "2420G" en CIIU_MAP. El UI mostrará
-// igualmente "2420" (usamos el prefijo numérico como código visible),
-// pero internamente serán distintos y podrás seleccionar ambos.
 
 // ====== Estilos reutilizables ======
 const TD = "border border-slate-300 px-2 py-1 break-words [overflow-wrap:anywhere] [hyphens:auto]";
@@ -12,11 +8,10 @@ const TH = TD + " bg-slate-100 font-semibold";
 
 // ====== Encabezado de empresa ======
 const COMPANY = {
-  name: "AYNA INGENIERIA Y SOLUCIONES AMBIENTALES",
-  tagline: "Tratamiento de aguas",
-  phone: "+51 905 629 167",
-  waNumberRaw: "51905629167", // para wa.me se usa sin '+' ni espacios
-  // Sube tu logo a public/logo.svg en tu repo (o cambia por una URL externa)
+  name: "AYNA INGENIERIA Y SOLUCIONES AMBIENTALES SAC",
+  tagline: "Tratamiento de aguas residuales comerciales e industriales",
+  phone: "905 629 167",
+  waNumberRaw: "51905629167", 
   logoSrc: "https://i.ibb.co/XZpNpmyt/Logo.png",
 };
 
@@ -157,7 +152,7 @@ export default function App() {
             <img
               src={COMPANY.logoSrc}
               alt={COMPANY.name}
-              className="w-15 h-15 object-contain"
+              className="w-12 h-12 object-contain"
               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
             />
             <div className="flex-1 min-w-[220px]">
