@@ -152,7 +152,7 @@ export default function App() {
             <img
               src={COMPANY.logoSrc}
               alt={COMPANY.name}
-              className="w-12 h-12 object-contain"
+              className="w-14 h-14 object-contain"
               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
             />
             <div className="flex-1 min-w-[220px]">
