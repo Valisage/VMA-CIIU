@@ -13,11 +13,11 @@ const TH = TD + " bg-slate-100 font-semibold";
 // ====== Encabezado de empresa ======
 const COMPANY = {
   name: "AYNA INGENIERIA Y SOLUCIONES AMBIENTALES",
-  tagline: "Levantamientos y soluciones para VMA",
+  tagline: "Tratamiento de aguas",
   phone: "+51 905 629 167",
   waNumberRaw: "51905629167", // para wa.me se usa sin '+' ni espacios
   // Sube tu logo a public/logo.svg en tu repo (o cambia por una URL externa)
-  logoSrc: "https://i.ibb.co/HfGP790J/LOGO.jpg",
+  logoSrc: "https://i.ibb.co/XZpNpmyt/Logo.png",
 };
 
 
@@ -157,7 +157,7 @@ export default function App() {
             <img
               src={COMPANY.logoSrc}
               alt={COMPANY.name}
-              className="w-12 h-12 object-contain"
+              className="w-15 h-15 object-contain"
               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
             />
             <div className="flex-1 min-w-[220px]">
