@@ -1,5 +1,9 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import CIIU_MAP from "./CIIU_MAP";
+// Nota: para casos especiales (p.ej., 2420 con galvanoplastía) puedes
+// añadir una segunda clave como "2420G" en CIIU_MAP. El UI mostrará
+// igualmente "2420" (usamos el prefijo numérico como código visible),
+// pero internamente serán distintos y podrás seleccionar ambos.
 
 // ====== Estilos reutilizables ======
 const TD = "border border-slate-300 px-2 py-1 break-words [overflow-wrap:anywhere] [hyphens:auto]";
@@ -11,7 +15,8 @@ const COMPANY = {
   name: "AYNA INGENIERIA Y SOLUCIONES AMBIENTALES SAC",
   tagline: "Tratamiento de aguas residuales comerciales e industriales",
   phone: "905 629 167",
-  waNumberRaw: "51905629167", 
+  waNumberRaw: "51905629167", // para wa.me se usa sin '+' ni espacios
+  // Sube tu logo a public/logo.svg en tu repo (o cambia por una URL externa)
   logoSrc: "https://i.ibb.co/XZpNpmyt/Logo.png",
 };
 
@@ -295,22 +300,7 @@ export default function App() {
         <ParametrosTabla annex={1} selectedUnion={selectedUnion} titulo="Parámetros Anexo 1" />
         <ParametrosTabla annex={2} selectedUnion={selectedUnion} titulo="Parámetros Anexo 2" />
 
-        {/* Pie */}
-        <footer className="text-center text-xs text-slate-600 pt-2 border-t border-slate-200 flex flex-col items-center gap-1">
-          <div>Desarrollado por Sergio Gonzales Espinoza</div>
-          <a
-            href="https://www.linkedin.com/in/sergioage"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-0.5 text-xs"
-            aria-label="LinkedIn de Sergio Gonzales Espinoza"
-            title="LinkedIn: sergioage"
-          >
-            {/* Texto "Linked" azul (fondo blanco) + badge "in" blanco sobre fondo azul */}
-            <span className="text-[#0A66C2] font-medium leading-none align-middle tracking-tight">Linked</span>
-            <span className="inline-flex w-4 h-4 items-center justify-center rounded-[3px] bg-[#0A66C2] text-white font-bold text-[10px] leading-none align-middle">in</span>
-          </a>
-        </footer>
+        
       </div>
     </div>
   );
@@ -372,4 +362,3 @@ function TablaBase({ titulo, params, selectedUnion }: { titulo: string; params: 
     </section>
   );
 }
-
