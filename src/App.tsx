@@ -1,9 +1,11 @@
-<head>
-  <meta charset="UTF-8" />
-  <title>Redirección</title>
+import { useEffect } from "react";
 
-  <!-- REDIRECCIÓN INMEDIATA A TU PÁGINA -->
-  <meta http-equiv="refresh" content="0; url=https://ayna.com.pe/parametros-vma/" />
-  
-  <!-- el resto de lo que ya tenías en el head puede quedarse debajo -->
-</head>
+export default function App() {
+  useEffect(() => {
+    // URL de la página de tu web donde está el iframe
+    window.location.replace("https://ayna.com.pe/parametros-vma/");
+  }, []);
+
+  // No renderizamos nada, solo redirigimos
+  return null;
+}
