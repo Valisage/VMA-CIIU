@@ -2,8 +2,7 @@ import React, { useMemo, useState, useEffect, useRef } from "react";
 import CIIU_MAP from "./CIIU_MAP";
 
 // ====== Estilos reutilizables ======
-const TD =
-  "border border-slate-300 px-2 py-1 break-words [overflow-wrap:anywhere] [hyphens:auto]";
+const TD = "border border-slate-300 px-2 py-1 break-words [overflow-wrap:anywhere] [hyphens:auto]";
 const TD_CENTER = TD + " text-center";
 const TH = TD + " bg-slate-100 font-semibold";
 
@@ -22,25 +21,25 @@ const PARAM_INFO: Record<string, ParamInfo> = {
   "Sólidos Suspendidos Totales": { vma: "500 mg/L", dir: false, annex: 1 },
   "Aceites y Grasas": { vma: "100 mg/L", dir: true, annex: 1 },
   // Anexo 2
-  Aluminio: { vma: "10 mg/L", dir: true, annex: 2 },
-  Arsénico: { vma: "0.5 mg/L", dir: true, annex: 2 },
-  Boro: { vma: "4 mg/L", dir: true, annex: 2 },
-  Cadmio: { vma: "0.2 mg/L", dir: true, annex: 2 },
-  Cianuro: { vma: "1 mg/L", dir: true, annex: 2 },
-  Cobre: { vma: "3 mg/L", dir: true, annex: 2 },
+  "Aluminio": { vma: "10 mg/L", dir: true, annex: 2 },
+  "Arsénico": { vma: "0.5 mg/L", dir: true, annex: 2 },
+  "Boro": { vma: "4 mg/L", dir: true, annex: 2 },
+  "Cadmio": { vma: "0.2 mg/L", dir: true, annex: 2 },
+  "Cianuro": { vma: "1 mg/L", dir: true, annex: 2 },
+  "Cobre": { vma: "3 mg/L", dir: true, annex: 2 },
   "Cromo hexavalente": { vma: "0.5 mg/L", dir: true, annex: 2 },
   "Cromo total": { vma: "10 mg/L", dir: true, annex: 2 },
-  Manganeso: { vma: "4 mg/L", dir: true, annex: 2 },
-  Mercurio: { vma: "0.02 mg/L", dir: true, annex: 2 },
-  Níquel: { vma: "4 mg/L", dir: true, annex: 2 },
-  Plomo: { vma: "0.5 mg/L", dir: true, annex: 2 },
-  Sulfatos: { vma: "1000 mg/L", dir: true, annex: 2 },
-  Sulfuros: { vma: "5 mg/L", dir: false, annex: 2 },
-  Zinc: { vma: "10 mg/L", dir: true, annex: 2 },
+  "Manganeso": { vma: "4 mg/L", dir: true, annex: 2 },
+  "Mercurio": { vma: "0.02 mg/L", dir: true, annex: 2 },
+  "Níquel": { vma: "4 mg/L", dir: true, annex: 2 },
+  "Plomo": { vma: "0.5 mg/L", dir: true, annex: 2 },
+  "Sulfatos": { vma: "1000 mg/L", dir: true, annex: 2 },
+  "Sulfuros": { vma: "5 mg/L", dir: false, annex: 2 },
+  "Zinc": { vma: "10 mg/L", dir: true, annex: 2 },
   "Nitrógeno Amoniacal": { vma: "80 mg/L", dir: false, annex: 2 },
   "Potencial Hidrógeno (pH)": { vma: "6-9", dir: false, annex: 2 },
   "Sólidos Sedimentables": { vma: "8.5 mL/L/h", dir: false, annex: 2 },
-  Temperatura: { vma: "< 35 °C", dir: false, annex: 2 },
+  "Temperatura": { vma: "< 35 °C", dir: false, annex: 2 },
 };
 
 // ====== Utilidades ======
@@ -74,8 +73,42 @@ export default function App() {
   const [selected, setSelected] = useState<string[]>([]);
   const [q, setQ] = useState<string>("");
   const [focused, setFocused] = useState<boolean>(false);
-
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // 🔹 Ajuste de altura para iframe (postMessage)
+  useEffect(() => {
+    const sendHeight = () => {
+      const height =
+        document.documentElement.scrollHeight || document.body.scrollHeight || 0;
+      if (window.parent) {
+        window.parent.postMessage(
+          { type: "AYNA_CIIU_HEIGHT", height },
+          "*"
+        );
+      }
+    };
+
+    // Enviar al cargar
+    sendHeight();
+
+    // Enviar cuando cambia el tamaño interno
+    window.addEventListener("resize", sendHeight);
+
+    // Observar cambios en el DOM (por si cambian tablas, selección, etc.)
+    const observer = new MutationObserver(() => {
+      sendHeight();
+    });
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+    });
+
+    return () => {
+      window.removeEventListener("resize", sendHeight);
+      observer.disconnect();
+    };
+  }, []);
 
   // Cerrar dropdown al clickear fuera
   useEffect(() => {
@@ -89,16 +122,28 @@ export default function App() {
 
   // Opciones para el autocompletado
   const options = useMemo(() => {
-    const list: { code: string; codeDisplay: string; label: string; actividades: string[] }[] = [];
+    const list: {
+      code: string;
+      codeDisplay: string;
+      label: string;
+      actividades: string[];
+    }[] = [];
     for (const [code, entries] of Object.entries(
       CIIU_MAP as Record<string, { actividad: string; parametros: string[] }[]>
     )) {
       const acts = (entries || []).map((e) => e.actividad);
       const actividadPrincipal = acts[0] || "(sin actividad)";
       const codeDisplay = String(code).replace(/[^0-9].*$/, ""); // "2420G" -> "2420"
-      list.push({ code, codeDisplay, label: `${codeDisplay} — ${actividadPrincipal}`, actividades: acts });
+      list.push({
+        code,
+        codeDisplay,
+        label: `${codeDisplay} — ${actividadPrincipal}`,
+        actividades: acts,
+      });
     }
-    return list.sort((a, b) => a.codeDisplay.localeCompare(b.codeDisplay, "es"));
+    return list.sort((a, b) =>
+      a.codeDisplay.localeCompare(b.codeDisplay, "es")
+    );
   }, []);
 
   const visible = useMemo(() => {
@@ -106,7 +151,9 @@ export default function App() {
     if (!q.trim()) return base;
     const nq = stripDiacritics(q.trim());
     return base.filter(
-      (o) => stripDiacritics(o.label).includes(nq) || o.codeDisplay.includes(q.trim())
+      (o) =>
+        stripDiacritics(o.label).includes(nq) ||
+        o.codeDisplay.includes(q.trim())
     );
   }, [options, selected, q]);
 
@@ -117,7 +164,13 @@ export default function App() {
 
   const addCode = (code: string) => {
     if (!code) return;
-    setSelected((prev) => (prev.includes(code) ? prev : [...prev, code]));
+    setSelected((prev) =>
+      prev.includes(code)
+        ? prev
+        : prev.length < 4
+        ? [...prev, code]
+        : prev // máximo 4
+    );
     setQ("");
     setFocused(false);
   };
@@ -125,7 +178,7 @@ export default function App() {
   const removeCode = (code: string) =>
     setSelected((prev) => prev.filter((c) => c !== code));
 
-  // Tests mínimos (silenciosos)
+  // Tests mínimos silenciosos
   useEffect(() => {
     try {
       const u1 = new Set<string>(["Demanda Química de Oxígeno"]);
@@ -140,16 +193,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white text-slate-900">
       <div className="mx-auto max-w-7xl p-4 space-y-6">
-        {/* Encabezado de la herramienta */}
-        <header className="border-b border-slate-200 pb-2">
-          <h1 className="text-xl sm:text-2xl font-semibold">
-            Parámetros de cumplimiento obligatorio según CIIU
-          </h1>
-          <div className="text-xs sm:text-sm text-slate-600">
-            Basado en el D.S. 010-2019-VIVIENDA y la R.M. 360-2016-VIVIENDA
-          </div>
-        </header>
-
         {/* Selector con búsqueda */}
         <section className="border border-slate-300 rounded-md bg-white">
           <div className={TH + " text-[clamp(11px,2.6vw,14px)] sm:text-sm"}>
@@ -206,7 +249,7 @@ export default function App() {
             )}
           </div>
 
-          {/* Seleccionados: tabla */}
+          {/* Seleccionados: tabla RESPONSIVE */}
           <div className="p-2 border-t border-slate-300 overflow-x-hidden">
             <table className="w-full text-[clamp(12px,2.8vw,14px)] sm:text-sm table-fixed border-collapse">
               <colgroup>
@@ -220,7 +263,9 @@ export default function App() {
                   const code = selected[idx];
                   const codeDisplay = (code || "").replace(/[^0-9].*$/, "");
                   const acts = code
-                    ? ((CIIU_MAP as any)[code] || []).map((e: any) => e.actividad)
+                    ? ((CIIU_MAP as any)[code] || []).map(
+                        (e: any) => e.actividad
+                      )
                     : [];
                   const desc = acts[0] || "";
                   return (
@@ -260,7 +305,7 @@ export default function App() {
                       )}
                       <td className="border border-slate-300 px-2 py-1">
                         {desc ? (
-                          <span className="[overflow-wrap:anywhere] [hyphens:auto] leading-tight">
+                          <span className="leading-tight [overflow-wrap:anywhere] [hyphens:auto]">
                             {desc}
                           </span>
                         ) : (
@@ -291,7 +336,7 @@ export default function App() {
   );
 }
 
-// ====== Componentes auxiliares ======
+// ====== Componentes ======
 function ParametrosTabla({
   annex,
   selectedUnion,
@@ -305,7 +350,9 @@ function ParametrosTabla({
     () => Object.keys(PARAM_INFO).filter((k) => PARAM_INFO[k].annex === annex),
     [annex]
   );
-  return <TablaBase titulo={titulo} params={params} selectedUnion={selectedUnion} />;
+  return (
+    <TablaBase titulo={titulo} params={params} selectedUnion={selectedUnion} />
+  );
 }
 
 function TablaBase({
@@ -371,7 +418,12 @@ function TablaBase({
               </th>
             </tr>
             <tr>
-              <th className={TH + " text-center text-[clamp(10px,2.4vw,13px)] sm:text-sm leading-tight whitespace-normal"}>
+              <th
+                className={
+                  TH +
+                  " text-center text-[clamp(10px,2.4vw,13px)] sm:text-sm leading-tight whitespace-normal"
+                }
+              >
                 <span className="hidden sm:inline">
                   Muestra lab. Acreditado
                 </span>
@@ -381,7 +433,12 @@ function TablaBase({
                   acreditado
                 </span>
               </th>
-              <th className={TH + " text-center text-[clamp(10px,2.4vw,13px)] sm:text-sm leading-tight whitespace-normal"}>
+              <th
+                className={
+                  TH +
+                  " text-center text-[clamp(10px,2.4vw,13px)] sm:text-sm leading-tight whitespace-normal"
+                }
+              >
                 <span className="hidden sm:inline">Muestra dirimente</span>
                 <span className="sm:hidden block">
                   Muestra
